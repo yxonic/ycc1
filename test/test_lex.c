@@ -2,6 +2,8 @@
 #include "common.h"
 #include "helpers.h"
 
+extern void getsym();
+
 int main(int argc, char **argv)
 {
     // skip program name

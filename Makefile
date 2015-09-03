@@ -21,8 +21,9 @@ all:
 
 .PHONY: test
 test: $(BIN)/test_lex
+	@mkdir -p $(BIN)
 	@echo "Running test_lex..."
-	@bin/test_lex test/examples/expr.in
+	@$(BIN)/test_lex $(TEST)/examples/expr.in
 $(BIN)/test_lex: $(OBJ)/test_lex.o $(OBJ)/expr.yy.o -lfl
 
 clean:
@@ -35,9 +36,12 @@ $(SRC)/%.yy.c: $(SRC)/%.l
 
 $(BIN)/*.o: $(INCLUDE)/common.h $(INCLUDE)/helpers.h
 
-$(OBJ)/%.o: $(SRC)/%.c
+$(OBJ)/%.yy.o: $(SRC)/%.yy.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+$(OBJ)/%.o: $(SRC)/%.c
+	$(CC) $(CFLAGS) -Wall -c -o $@ $<
+
 $(OBJ)/%.o: $(TEST)/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -Wall -c -o $@ $<
 
