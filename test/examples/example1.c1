@@ -1,9 +1,12 @@
+/* This is a test program with
+   no specific meaning. */
+
 const int m = 3;
 int i = 0, b[m] = {1, 2, 3};
-int main()
+int/* comment should be able to be used as delimiter */main()
 {
-    while (i < m) {
-        b[i] = b[i] * 2;
+    while (i<m) {
+        /*comments**/ b[i] /**/ = b[i] /*making*/*/*a*/2;/*mess* / */
         i = i + 1;
     }
 }

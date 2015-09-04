@@ -9,9 +9,20 @@ digit           [0-9]
 id              {letter}({letter}|{digit})*
 number          {digit}+
 
+%x IN_COMMENT
 %%
 
 {ws}            { /* throw away whitespace */ }
+
+<INITIAL>{
+"/*"            BEGIN(IN_COMMENT);
+}
+<IN_COMMENT>{
+"*/"            BEGIN(INITIAL);
+[^*\n]+         // eat comment in chunks
+"*"             // eat the lone star
+\n              // TODO: yylineno
+}
 
 "+"             { return plus; }
 "-"             { return minus; }
