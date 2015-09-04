@@ -6,6 +6,7 @@
 %{
 #include <stdio.h>
 #include "common.h"
+extern YYSTYPE yylval;
 %}
 
 %%

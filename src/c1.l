@@ -1,5 +1,8 @@
 %{
 #include "common.h"
+#include "helpers.h"
+#include <stdlib.h>
+extern YYSTYPE yylval;
 %}
 
 delim           [ \t\n]
@@ -7,7 +10,7 @@ ws              {delim}+
 letter          [A-Za-z]
 digit           [0-9]
 id              {letter}({letter}|{digit})*
-number          {digit}+
+number          {digit}+|0x({digit}|[a-fA-F])+
 
 %x IN_COMMENT
 %%
@@ -52,18 +55,21 @@ number          {digit}+
 "else"          { return elsesym; }
 "while"         { return whilesym; }
 
-{number}        { yylval = atoi(yytext); return number; }
+{number}        { char *endptr ;
+                  yylval = (YYSTYPE) strtol(yytext, &endptr, 0);
+                  if (*endptr)
+                      ERROR("Invalid number: %s", yytext);
+                  return number; }
 {id}            { yylval = insid(); return ident; }
 
 .               { return nul; }
 
 %%
-int insid()
+YYSTYPE insid()
 {
     strcpy(symbols[nsym], yytext);
     return nsym++;
 }
-
 void getsym()
 {
     sym = yylex();

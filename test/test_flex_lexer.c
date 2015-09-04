@@ -2,6 +2,7 @@
 #include "common.h"
 #include "helpers.h"
 
+YYSTYPE yylval;
 extern void getsym();
 
 int main(int argc, char **argv)

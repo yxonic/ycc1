@@ -2,6 +2,7 @@
 #include "common.h"
 #include "helpers.h"
 
+YYSTYPE yylval;
 extern void getsym();
 
 int main(int argc, char **argv)
@@ -23,7 +24,6 @@ int main(int argc, char **argv)
 
     extern FILE *yyin;
     yyin = infile;
-    extern int yylval;
 
     INFO("Started scanning.");
     

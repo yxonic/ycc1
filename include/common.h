@@ -30,7 +30,10 @@
 #define elsesym         0x8000000               
 #define whilesym        0x10000000
 
-int yylval;
+#ifndef YYSTYPE
+#define YYSTYPE int
+#endif
+
 unsigned long sym;      // last symbol read
 
 int nsym;               // number of symbols

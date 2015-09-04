@@ -2,11 +2,13 @@
    no specific meaning. */
 
 const int m = 3;
-int i = 0, b[m] = {1, 2, 3};
+int i = 0, b[m] = {1, 027, 0x3e};
 int/* comment should be able to be used as delimiter */main()
 {
     while (i<m) {
         /*comments**/ b[i] /**/ = b[i] /*making*/*/*a*/2;/*mess* / */
         i = i + 1;
     }
+    /* let's try an invalid number */
+    i = 028;
 }
