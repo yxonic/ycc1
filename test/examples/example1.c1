@@ -1,0 +1,9 @@
+const int m = 3;
+int i = 0, b[m] = {1, 2, 3};
+int main()
+{
+    while (i < m) {
+        b[i] = b[i] * 2;
+        i = i + 1;
+    }
+}

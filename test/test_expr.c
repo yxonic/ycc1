@@ -23,6 +23,7 @@ int main(int argc, char **argv)
 
     extern FILE *yyin;
     yyin = infile;
+    extern int yylval;
 
     INFO("Started scanning.");
     
@@ -30,7 +31,7 @@ int main(int argc, char **argv)
     while (sym) {
         switch(sym) {
         case number:
-            printf("<NUM, %ld> ", num);
+            printf("<NUM, %d> ", yylval);
             break;
         case plus:
             printf("<PLUS> ");
