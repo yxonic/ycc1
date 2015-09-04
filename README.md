@@ -11,7 +11,7 @@ This project just started and is far from finished. You can track
 progress here.
 
 |Component      |Status|
-------------------------
+|---------------|-----:|
 |Scanning       |Coding|
 |Parsing        |N/A   |
 |Type Checking  |N/A   |
