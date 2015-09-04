@@ -10,13 +10,12 @@ subset of the C programming language.
 This project just started and is far from finished. You can track
 progress here.
 
-<table>
-<tr><td><b>Component</b></td><td><b>Status</b></td></tr>
-<tr><td>Scanning</td><td>Coding</td></tr>
-<tr><td>Parsing</td><td>N/A</td></tr>
-<tr><td>Type Checking</td><td>N/A</td></tr>
-<tr><td>Code Generation</td><td>N/A</td></tr>
-</table>
+|Component      |Status|
+------------------------
+|Scanning       |Coding|
+|Parsing        |N/A   |
+|Type Checking  |N/A   |
+|Code Generation|N/A   |
 
 ## Build and test
 
