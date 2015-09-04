@@ -5,7 +5,7 @@ This project is for the course: Compilers (Fall, 2015). It implements
 a rather plain compiler for a made-up language C1, which is a tiny
 subset of the C programming language.
 
-##Progress
+## Progress
 
 This project just started and is far from finished. You can track
 progress here.
@@ -18,13 +18,13 @@ progress here.
 <tr><td>Code Generation</td><td>N/A</td></tr>
 </table>
 
-##Build and test
+## Build and test
 
-###Tools
+### Tools
 
 GCC, GNU Make, flex, bison are needed to build the whole project.
 
-###Build the compiler (currently not finished)
+### Build the compiler (currently not finished)
 
 The only thing to do is:
 
@@ -32,7 +32,7 @@ The only thing to do is:
 
 Then you can find an executable at `bin/` named `ycc1`.
 
-###Usage
+### Usage
 
 ycc1 follows GCC's convention. You can use it as follows:
 
@@ -54,7 +54,7 @@ reports are welcome.
 Note: before all the phases are completed, there WON'T be a compiler
 at all. Please wait :)
 
-###Perform unit tests
+### Perform unit tests
 
 I've written some tests on each phase, and those tests can be
 performed by typing:
@@ -70,7 +70,7 @@ can enable this by defining `DEBUG` variable.
     make clean
     DEBUG=DEBUG make test
 
-##Documentation
+## Documentation
 
 Implementation details are described in the documentation under `doc/`
 directory. There are also sufficient comments in the source
