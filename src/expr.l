@@ -6,12 +6,12 @@
 %{
 #include <stdio.h>
 #include "common.h"
-extern void getsym();    
+extern YYSTYPE yylval;
 %}
 
 %%
 
-[0-9]+     { num = atol(yytext);
+[0-9]+     { yylval = atoi(yytext);
              return(number);
            }
 "+"        { return(plus); }

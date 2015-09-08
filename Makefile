@@ -20,11 +20,22 @@ all:
 	@echo "Type 'make test' to test lexer."
 
 .PHONY: test
-test: $(BIN)/test_lex
+test: $(BIN)/test_expr $(BIN)/test_flex_lexer
 	@mkdir -p $(BIN)
-	@echo "Running test_lex..."
-	@$(BIN)/test_lex $(TEST)/examples/expr.in
-$(BIN)/test_lex: $(OBJ)/test_lex.o $(OBJ)/expr.yy.o -lfl
+	@echo
+	@echo "Testing expression lexer..."
+	@echo
+	@echo "Scanning $(TEST)/examples/expr.in"
+	@$(BIN)/test_expr $(TEST)/examples/expr.in
+	@echo
+	@echo "Testing flex lexer..."
+	@echo
+	@echo "Scanning $(TEST)/examples/example1.c1"
+	@$(BIN)/test_flex_lexer $(TEST)/examples/example1.c1
+
+$(BIN)/test_expr: $(OBJ)/test_expr.o $(OBJ)/expr.yy.o -lfl
+
+$(BIN)/test_flex_lexer: $(OBJ)/test_flex_lexer.o $(OBJ)/c1.yy.o -lfl
 
 clean:
 	-rm -f bin/*
