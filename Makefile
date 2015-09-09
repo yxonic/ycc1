@@ -10,7 +10,7 @@ CFLAGS	= -g -I $(INCLUDE)
 CPPFLAGS= $(CFLAGS) -std=c++11
 
 # define DEBUG to show more logs
-ifdef DEBUG
+ifndef RELEASE
   CFLAGS += -DDEBUG
 endif
 LEX	= flex -I --yylineno

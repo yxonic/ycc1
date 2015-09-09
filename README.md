@@ -63,11 +63,12 @@ performed by typing:
 And you can find test inputs inside `test/examples`. Random/artificial
 inputs can be generated using tools from `scripts/`.
 
-When debugging, showing more debugging information can be helpful. You
-can enable this by defining `DEBUG` variable.
+When debugging, showing more debugging information can be
+helpful. This feature is turned on by default. You can define RELEASE
+variable to disable it.
 
     make clean
-    DEBUG=DEBUG make test
+    RELEASE=1 make test
 
 ## Documentation
 
