@@ -7,6 +7,10 @@
 #include <stdio.h>
 #include "common.h"
 extern YYSTYPE yylval;
+unsigned long sym;
+int nsym;
+std::string symbols[256];
+std::map<std::string, int> symmap;
 %}
 
 %%

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <cstdlib>
+#include <string>
+#include <map>
+
 #define nul             0x1
 #define ident           0x2      
 #define number          0x4      
@@ -34,8 +38,10 @@
 #define YYSTYPE int
 #endif
 
-unsigned long sym;      // last symbol read
+extern int yylineno;
 
-int nsym;               // number of symbols
-char symbols[256][32];  // maximum 256 identifiers, each with max
-                        // length 32
+extern unsigned long sym;                       // last symbol read
+
+extern int nsym;                                // number of symbols
+extern std::string symbols[256];                // symbol table
+extern std::map<std::string, int> symmap;       // store index of known symbols

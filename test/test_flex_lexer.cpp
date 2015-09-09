@@ -1,6 +1,9 @@
+#include <iostream>
 #include <stdio.h>
 #include "common.h"
 #include "helpers.h"
+
+using namespace std;
 
 YYSTYPE yylval;
 extern void getsym();
@@ -31,97 +34,98 @@ int main(int argc, char **argv)
     while (sym) {
         switch(sym) {
         case number:
-            printf("<NUM, %d> ", yylval);
+            cout << "<NUM, " << yylval << "> ";
             break;
         case ident:
-            printf("<ID, %s> ", symbols[yylval]);
+            cout << "<ID, " << yylval << ": "
+                 << symbols[yylval] << "> ";
             break;
         case plus:
-            printf("<+> ");
+            cout << "<+> ";
             break;
         case minus:
-            printf("<-> ");
+            cout << "<-> ";
             break;
         case times:
-            printf("<*> ");
+            cout << "<*> ";
             break;
         case divide:
-            printf("</> ");
+            cout << "</> ";
             break;
         case mod:
-            printf("<%%> ");
+            cout << "<%%> ";
             break;
         case eql:
-            printf("<EQ> ");
+            cout << "<EQ> ";
             break;
         case neq:
-            printf("<NE> ");
+            cout << "<NE> ";
             break;
         case lss:
-            printf("<LT> ");
+            cout << "<LT> ";
             break;
         case leq:
-            printf("<LE> ");
+            cout << "<LE> ";
             break;
         case gtr:
-            printf("<GT> ");
+            cout << "<GT> ";
             break;
         case geq:
-            printf("<GE> ");
+            cout << "<GE> ";
             break;
         case lparen:
-            printf("<(> ");
+            cout << "<(> ";
             break;
         case rparen:
-            printf("<)> ");
+            cout << "<)> ";
             break;
         case comma:
-            printf("<,> ");
+            cout << "<,> ";
             break;
         case semicolon:
-            printf("<;> ");
+            cout << "<;> ";
             break;
         case assign:
-            printf("<=> ");
+            cout << "<=> ";
             break;
         case lbracket:
-            printf("<[> ");
+            cout << "<[> ";
             break;
         case rbracket:
-            printf("<]> ");
+            cout << "<]> ";
             break;
         case lbrace:
-            printf("<{> ");
+            cout << "<{> ";
             break;
         case rbrace:
-            printf("<}> ");
+            cout << "<}> ";
             break;
         case oddsym:
-            printf("<ODD> ");
+            cout << "<ODD> ";
             break;
         case constsym:
-            printf("<CONST> ");
+            cout << "<CONST> ";
             break;
         case intsym:
-            printf("<INT> ");
+            cout << "<INT> ";
             break;
         case ifsym:
-            printf("<IF> ");
+            cout << "<IF> ";
             break;
         case elsesym:
-            printf("<ELSE> ");
+            cout << "<ELSE> ";
             break;
         case whilesym:
-            printf("<WHILE> ");
+            cout << "<WHILE> ";
             break;
         default:
-            WARN("Unknown symbol!");
+            WARN("Unknown symbol at line %d.", yylineno);
             break;
         }
         getsym();
     }
-    printf("\n");
-
+    cout << "\n";
+    
     INFO("Scanning finished.");
     
     fclose(infile);

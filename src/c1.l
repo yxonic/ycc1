@@ -1,8 +1,14 @@
 %{
 #include "common.h"
 #include "helpers.h"
-#include <stdlib.h>
+
 extern YYSTYPE yylval;
+YYSTYPE insid();
+unsigned long sym;
+int nsym;
+std::string symbols[256];
+std::map<std::string, int> symmap;
+
 %}
 
 delim           [ \t\n]
@@ -58,7 +64,7 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 {number}        { char *endptr ;
                   yylval = (YYSTYPE) strtol(yytext, &endptr, 0);
                   if (*endptr)
-                      ERROR("Invalid number: %s", yytext);
+                      ERROR("Invalid number %s at line %d.", yytext, yylineno);
                   return number; }
 {id}            { yylval = insid(); return ident; }
 
@@ -67,8 +73,15 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 %%
 YYSTYPE insid()
 {
-    strcpy(symbols[nsym], yytext);
-    return nsym++;
+    std::string str = std::string(yytext);
+    std::map<std::string, int>::iterator i = symmap.find(str);
+    if (i == symmap.end()) {
+        symbols[nsym] = str;
+        symmap[str] = nsym;
+        return nsym++;
+    } else {
+        return i->second;
+    }
 }
 void getsym()
 {
