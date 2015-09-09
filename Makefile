@@ -31,8 +31,9 @@ test: $(BIN)/test_expr $(BIN)/test_flex_lexer
 	@echo
 	@echo "* Testing flex lexer..."
 	@echo
-	@echo "Scanning $(TEST)/examples/example1.c1"
+	@echo "Scanning $(TEST)/examples/example*.c1"
 	@$(BIN)/test_flex_lexer $(TEST)/examples/example1.c1
+	@$(BIN)/test_flex_lexer $(TEST)/examples/example2.c1
 
 $(BIN)/test_expr: $(OBJ)/test_expr.o $(OBJ)/expr.yy.o -lfl
 

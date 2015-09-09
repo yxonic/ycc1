@@ -119,7 +119,7 @@ int main(int argc, char **argv)
             cout << "<WHILE> ";
             break;
         default:
-            WARN("Unknown symbol at line %d.", yylineno);
+            WARN("Unknown symbol '%s' at line %d.", yytext, yylineno);
             break;
         }
         getsym();

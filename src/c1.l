@@ -13,9 +13,9 @@ std::map<std::string, int> symmap;
 
 delim           [ \t\n]
 ws              {delim}+
-letter          [A-Za-z]
+letter_         [A-Za-z_]
 digit           [0-9]
-id              {letter}({letter}|{digit})*
+id              {letter_}({letter_}|{digit})*
 number          {digit}+|0x({digit}|[a-fA-F])+
 
 %x IN_COMMENT
@@ -64,7 +64,7 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 {number}        { char *endptr ;
                   yylval = (YYSTYPE) strtol(yytext, &endptr, 0);
                   if (*endptr)
-                      ERROR("Invalid number %s at line %d.", yytext, yylineno);
+                      ERROR("Invalid number '%s' at line %d.", yytext, yylineno);
                   return number; }
 {id}            { yylval = insid(); return ident; }
 

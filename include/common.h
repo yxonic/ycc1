@@ -39,6 +39,7 @@
 #endif
 
 extern int yylineno;
+extern char *yytext;
 
 extern unsigned long sym;                       // last symbol read
 
