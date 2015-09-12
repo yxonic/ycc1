@@ -10,6 +10,7 @@ look at how to use it first.
 >`clang` is a C, C++, and Objective-C compiler which encompasses
 >preprocessing, parsing, optimization, code generation, assembly, and
 >linking.
+>
 > *clang MAN page*
 
 Let's use C for example. Though we can compile a C program by just one
