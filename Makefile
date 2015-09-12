@@ -34,13 +34,41 @@ test: $(BIN)/test_expr $(BIN)/test_flex_lexer
 	@echo "Scanning $(TEST)/examples/example*.c1"
 	@$(BIN)/test_flex_lexer $(TEST)/examples/example1.c1
 	@$(BIN)/test_flex_lexer $(TEST)/examples/example2.c1
+	@$(BIN)/test_flex_lexer $(TEST)/examples/example3.c1
 
 $(BIN)/test_expr: $(OBJ)/test_expr.o $(OBJ)/expr.yy.o -lfl
 
 $(BIN)/test_flex_lexer: $(OBJ)/test_flex_lexer.o $(OBJ)/c1.yy.o -lfl
 
+.PHONY: clean
 clean:
 	-rm -f bin/*
+
+# targets for TA
+
+.PHONY: P1
+P1:
+	@echo
+	@echo "* Compiling example1.c1. This should generate some errors."
+	@echo
+	-clang -x c -w test/examples/example1.c1
+	@echo
+	@echo "* Compiling example2.c1."
+	@echo
+	clang -x c -w test/examples/example2.c1
+	@echo
+	@echo "* Running example2, which will print a sorted number list."
+	@echo
+	-./a.out
+	@echo
+	@echo "* Compiling example3.c1."
+	@echo
+	clang -x c -w test/examples/example3.c1
+	@echo
+	@echo "* Running example3, which will print whether a number is prime."
+	@echo
+	-./a.out
+	-rm -f a.out
 
 # rules
 

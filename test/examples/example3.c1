@@ -1,0 +1,30 @@
+#include <stdio.h>
+int p, a, chk = 1, flag;
+void prime()
+{
+    flag = chk = 1;
+    if (p == 1)
+        chk = flag = 0;
+    if (p % 2 == 0)
+        chk = flag = 0;
+    a = 3;
+    while (flag) {
+        if (a * a <= p) {
+            if (p % a == 0) {
+                chk = 0;
+                flag = 0;
+            } else
+                a = a + 2;
+        } else
+            flag = 0;
+    }
+}
+void main()
+{
+    p = 1001;
+    prime();
+    printf("%d: %d\n", p, chk);
+    p = 1009;
+    prime();
+    printf("%d: %d\n", p, chk);
+}
