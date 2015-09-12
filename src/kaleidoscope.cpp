@@ -44,12 +44,18 @@ static int gettok() {
 
     if (isdigit(LastChar) || LastChar == '.') {   // Number: [0-9.]+
         std::string NumStr;
+        bool is_int = true;
         do {
+            if (LastChar == '.')
+                is_int = false;
             NumStr += LastChar;
             LastChar = getchar();
-        } while (isdigit(LastChar) || LastChar == '.');
-
-        NumVal = strtod(NumStr.c_str(), 0);
+        } while (isxdigit(LastChar) || LastChar == '.' ||
+                 LastChar == 'x' || LastChar == 'X');
+        if (is_int)
+            NumVal = (double) strtol(NumStr.c_str(), NULL, 0);
+        else
+            NumVal = strtod(NumStr.c_str(), 0);
         return tok_number;
     }
 
@@ -61,7 +67,7 @@ static int gettok() {
         if (LastChar != EOF)
             return gettok();
     }
-  
+
     // Check for end of file.  Don't eat the EOF.
     if (LastChar == EOF)
         return tok_eof;
@@ -69,6 +75,21 @@ static int gettok() {
     // Otherwise, just return the character as its ascii value.
     int ThisChar = LastChar;
     LastChar = getchar();
+    
+    if (ThisChar == '/' && LastChar == '*') {
+        while (1) {
+            do LastChar = getchar();
+            while (LastChar != EOF && LastChar != '*');
+            if (LastChar == EOF)
+                return tok_eof;
+            LastChar = getchar();
+            if (LastChar == '/') {
+                LastChar = getchar();
+                return gettok();
+            }
+        }
+    }
+    
     return ThisChar;
 }
 
@@ -138,7 +159,18 @@ namespace {
 /// lexer and updates CurTok with its results.
 static int CurTok;
 static int getNextToken() {
-    return CurTok = gettok();
+    CurTok = gettok();
+    if (CurTok > 0)
+        printf("<%c> ", (char) CurTok);
+    else if (CurTok == tok_def)
+        printf("<def> ");
+    else if (CurTok == tok_extern)
+        printf("<extern> ");
+    else if (CurTok == tok_identifier)
+        printf("<id, %s> ", IdentifierStr.c_str());
+    else if (CurTok == tok_number)
+        printf("<num, %lf> ", NumVal);
+    return CurTok;
 }
 
 /// BinopPrecedence - This holds the precedence for each binary operator that is
@@ -356,7 +388,7 @@ static void HandleTopLevelExpression() {
 
 /// top ::= definition | external | expression | ';'
 static void MainLoop() {
-    while (1) {
+    while (0) {         // TO NOT RUN THIS LOOP
         fprintf(stderr, "ready> ");
         switch (CurTok) {
         case tok_eof:    return;
@@ -365,6 +397,15 @@ static void MainLoop() {
         case tok_extern: HandleExtern(); break;
         default:         HandleTopLevelExpression(); break;
         }
+    }
+}
+
+
+static void MainScanningLoop() {
+    while (1) {
+        getNextToken();
+        if (CurTok == tok_eof)
+            break;
     }
 }
 
@@ -380,12 +421,19 @@ int main() {
     BinopPrecedence['-'] = 20;
     BinopPrecedence['*'] = 40;  // highest.
 
+    MainScanningLoop();
+    printf("\n");
+    
+    /*
     // Prime the first token.
     fprintf(stderr, "ready> ");
     getNextToken();
-
+    */
+    
     // Run the main "interpreter loop" now.
+    // IT'S NOT RUN!
     MainLoop();
-
+    
+    
     return 0;
 }

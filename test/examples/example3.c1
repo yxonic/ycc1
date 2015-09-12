@@ -1,4 +1,4 @@
-#include <stdio.h>
+/* #include <stdio.h> */
 int p, a, chk = 1, flag;
 void prime()
 {
@@ -23,8 +23,8 @@ void main()
 {
     p = 1001;
     prime();
-    printf("%d: %d\n", p, chk);
+    /* printf("%d: %d\n", p, chk); */
     p = 1009;
     prime();
-    printf("%d: %d\n", p, chk);
+    /* printf("%d: %d\n", p, chk); */
 }

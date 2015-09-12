@@ -1,5 +1,5 @@
-/* for debugging */
-#include <stdio.h>
+/* for debugging
+   #include <stdio.h> */
 const int N = 10;
 int i = 0, j = 0, t, flag, arr[N] = {1,5,3,2,10,9,8,6,7,4};
 void main()
@@ -22,7 +22,7 @@ void main()
         i = i + 1;
     }
 
-    /* for debugging */
+    /* for debugging 
     for (i = 0; i < N; i++)
-        printf("%d\n", arr[i]);
+    printf("%d\n", arr[i]); */
 }
