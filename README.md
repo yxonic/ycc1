@@ -10,12 +10,12 @@ subset of the C programming language.
 This project just started and is far from finished. You can track
 progress here.
 
-|Component      |Status|
-|---------------|-----:|
-|Scanning       |Coding|
-|Parsing        |N/A   |
-|Type Checking  |N/A   |
-|Code Generation|N/A   |
+|Component      |Status  |
+|---------------|-------:|
+|Scanning       |Finished|
+|Parsing        |N/A     |
+|Type Checking  |N/A     |
+|Code Generation|N/A     |
 
 ## Build and test
 
