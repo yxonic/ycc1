@@ -6,14 +6,15 @@ BIN	= ./bin
 OBJ	= ./bin
 
 CC	= clang++
-CFLAGS	= -g -I $(INCLUDE)
+CFLAGS	= -g -I $(INCLUDE) -I $(SRC)
 CPPFLAGS= $(CFLAGS) -std=c++11
 
 # define DEBUG to show more logs
 ifndef RELEASE
   CFLAGS += -DDEBUG
 endif
-LEX	= flex -I --yylineno
+LEX	= flex -I
+YACC	= bison
 
 # targets
 
@@ -21,71 +22,35 @@ all:
 	@echo "Type 'make test' to test lexer."
 
 .PHONY: test
-test: test_lexer
+test: test_parser
 
-.PHONY: test_lexer
-test_lexer: $(BIN)/test_flex_lexer
-	@mkdir -p $(BIN)
-	@echo
-	@echo "* Testing flex lexer..."
-	@echo
-	@echo "Scanning $(TEST)/examples/example*.c1"
-	@$(BIN)/test_flex_lexer $(TEST)/examples/example1.c1
-	@$(BIN)/test_flex_lexer $(TEST)/examples/example2.c1
-	@$(BIN)/test_flex_lexer $(TEST)/examples/example3.c1
-
-$(BIN)/test_expr: $(OBJ)/test_expr.o $(OBJ)/expr.yy.o -lfl
-
-$(BIN)/test_flex_lexer: $(OBJ)/test_flex_lexer.o $(OBJ)/c1.yy.o -lfl
+.PHONY: test_parser
+test_parser: $(BIN)/test_parser
 
 $(BIN)/kaleidoscope: $(OBJ)/kaleidoscope.o
 
+$(BIN)/test_parser: $(OBJ)/Parser.tab.o $(OBJ)/Lexer.yy.o $(OBJ)/test_parser.o
+
+$(OBJ)/test_parser.o: $(SRC)/Parser.tab.cc
+
 .PHONY: clean
 clean:
-	-rm -f bin/*
+	-rm -f $(BIN)/*
+	-rm -f $(SRC)/*.cc $(SRC)/*.hh
 
 # targets for TA
 
-.PHONY: P1 P2
-P1:
-	@echo
-	@echo "* Compiling example1.c1. This should generate some errors."
-	@echo
-	-clang -x c -w $(TEST)/examples/example1.c1
-	@echo
-	@echo "* Compiling example2.c1."
-	@echo
-	clang -x c -w $(TEST)/examples/example2.c1
-	@echo
-	@echo "* Running example2, which will print a sorted number list."
-	@echo
-	-./a.out
-	@echo
-	@echo "* Compiling example3.c1."
-	@echo
-	clang -x c -w $(TEST)/examples/example3.c1
-	@echo
-	@echo "* Running example3, which will print whether a number is prime."
-	@echo
-	-./a.out
-	-rm -f a.out
-
-P2: $(BIN)/kaleidoscope
-	@echo
-	@echo "* Running kaleidoscope lexer. Notice all comments are ignored."
-	@echo
-	$(BIN)/kaleidoscope < $(TEST)/examples/kaleidoscope_ex1.k
-	@echo
-	make test_lexer
-
 # rules
 
-$(SRC)/%.yy.cpp: $(SRC)/%.l
+$(SRC)/%.yy.cc: $(SRC)/%.ll
 	$(LEX) -o $@ $<
 
-$(BIN)/*.o: $(INCLUDE)/common.h $(INCLUDE)/helpers.h
+$(SRC)/%.tab.cc: $(SRC)/%.yy
+	$(YACC) -o $@ $< 
 
-$(OBJ)/%.yy.o: $(SRC)/%.yy.cpp
+$(BIN)/*.o: $(INCLUDE)/helpers.h
+
+$(OBJ)/%.o: $(SRC)/%.cc
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJ)/%.o: $(SRC)/%.cpp
@@ -93,4 +58,3 @@ $(OBJ)/%.o: $(SRC)/%.cpp
 
 $(OBJ)/%.o: $(TEST)/%.cpp
 	$(CC) $(CPPFLAGS) -Wall -c -o $@ $<
-
