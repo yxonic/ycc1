@@ -20,8 +20,11 @@ LEX	= flex -I --yylineno
 all:
 	@echo "Type 'make test' to test lexer."
 
+pre-build:
+	mkdir -p $(BIN)
+
 .PHONY: test
-test: test_lexer
+test: pre-build test_lexer
 
 .PHONY: test_lexer
 test_lexer: $(BIN)/test_flex_lexer
@@ -70,7 +73,7 @@ P1:
 	-./a.out
 	-rm -f a.out
 
-P2: $(BIN)/kaleidoscope
+P2: pre-build $(BIN)/kaleidoscope
 	@echo
 	@echo "* Running kaleidoscope lexer. Notice all comments are ignored."
 	@echo
