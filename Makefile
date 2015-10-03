@@ -7,12 +7,15 @@ OBJ	= ./bin
 
 CC	= clang++
 CFLAGS	= -g -I $(INCLUDE)
-CPPFLAGS= $(CFLAGS) -std=c++11
+CXXFLAGS= $(CFLAGS) -std=c++11 `llvm-config --cxxflags`
+LDFLAGS = `llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native`
+
 
 # define DEBUG to show more logs
 ifndef RELEASE
   CFLAGS += -DDEBUG
 endif
+
 LEX	= flex -I --yylineno
 
 # targets
@@ -21,7 +24,7 @@ all:
 	@echo "Type 'make test' to test lexer."
 
 pre-build:
-	mkdir -p $(BIN)
+	@mkdir -p $(BIN)
 
 .PHONY: test
 test: pre-build test_lexer
@@ -41,7 +44,8 @@ $(BIN)/test_expr: $(OBJ)/test_expr.o $(OBJ)/expr.yy.o -lfl
 
 $(BIN)/test_flex_lexer: $(OBJ)/test_flex_lexer.o $(OBJ)/c1.yy.o -lfl
 
-$(BIN)/kaleidoscope: $(OBJ)/kaleidoscope.o
+$(BIN)/kaleidoscope: $(OBJ)/kaleidoscope.o $(OBJ)/dumpdot.o
+	$(CC) -o $@ $(OBJ)/kaleidoscope.o $(OBJ)/dumpdot.o $(LDFLAGS)
 
 .PHONY: clean
 clean:
@@ -81,6 +85,11 @@ P2: pre-build $(BIN)/kaleidoscope
 	@echo
 	make test_lexer
 
+P3: pre-build $(BIN)/kaleidoscope
+	@echo
+	@echo "* Running kaleidoscope parser. Check output*.png."
+	@echo
+
 # rules
 
 $(SRC)/%.yy.cpp: $(SRC)/%.l
@@ -89,11 +98,11 @@ $(SRC)/%.yy.cpp: $(SRC)/%.l
 $(BIN)/*.o: $(INCLUDE)/common.h $(INCLUDE)/helpers.h
 
 $(OBJ)/%.yy.o: $(SRC)/%.yy.cpp
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJ)/%.o: $(SRC)/%.cpp
-	$(CC) $(CPPFLAGS) -Wall -c -o $@ $<
+	$(CC) $(CXXFLAGS) -Wall -c -o $@ $<
 
 $(OBJ)/%.o: $(TEST)/%.cpp
-	$(CC) $(CPPFLAGS) -Wall -c -o $@ $<
+	$(CC) $(CXXFLAGS) -Wall -c -o $@ $<
 
