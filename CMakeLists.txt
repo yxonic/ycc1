@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8.8)
 project (ycc1)
 
 # Enable C++11 as support
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-deprecated-register")
 
 # Add custom include directory
 include_directories(include)
