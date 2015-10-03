@@ -1,108 +1,18 @@
-PROGRAM	=
-INCLUDE = ./include
-SRC	= ./src
-TEST	= ./test
-BIN	= ./bin
-OBJ	= ./bin
-
-CC	= clang++
-CFLAGS	= -g -I $(INCLUDE)
-CXXFLAGS= $(CFLAGS) -std=c++11 `llvm-config --cxxflags`
-LDFLAGS = `llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native`
-
-
-# define DEBUG to show more logs
-ifndef RELEASE
-  CFLAGS += -DDEBUG
-endif
-
-LEX	= flex -I --yylineno
-
-# targets
-
+.PHONY: all test
 all:
-	@echo "Type 'make test' to test lexer."
+	@echo 'Building with CMake...'
+	@mkdir -p dist
+	@cd dist; cmake ../; make
+	@echo 'Now you can run "make test" to run tests.'
 
-pre-build:
-	@mkdir -p $(BIN)
+test: test_scanner test_kaleidoscope
 
-.PHONY: test
-test: pre-build test_lexer
+test_scanner:
+	-dist/test_flex_lexer dist/examples/example1.c1
+	-dist/test_flex_lexer dist/examples/example2.c1
+	-dist/test_flex_lexer dist/examples/example3.c1
 
-.PHONY: test_lexer
-test_lexer: $(BIN)/test_flex_lexer
-	@mkdir -p $(BIN)
-	@echo
-	@echo "* Testing flex lexer..."
-	@echo
-	@echo "Scanning $(TEST)/examples/example*.c1"
-	@$(BIN)/test_flex_lexer $(TEST)/examples/example1.c1
-	@$(BIN)/test_flex_lexer $(TEST)/examples/example2.c1
-	@$(BIN)/test_flex_lexer $(TEST)/examples/example3.c1
+test_kaleidoscope:
 
-$(BIN)/test_expr: $(OBJ)/test_expr.o $(OBJ)/expr.yy.o -lfl
-
-$(BIN)/test_flex_lexer: $(OBJ)/test_flex_lexer.o $(OBJ)/c1.yy.o -lfl
-
-$(BIN)/kaleidoscope: $(OBJ)/kaleidoscope.o $(OBJ)/dumpdot.o
-	$(CC) -o $@ $(OBJ)/kaleidoscope.o $(OBJ)/dumpdot.o $(LDFLAGS)
-
-.PHONY: clean
-clean:
-	-rm -f bin/*
-
-# targets for TA
-
-.PHONY: P1 P2
-P1:
-	@echo
-	@echo "* Compiling example1.c1. This should generate some errors."
-	@echo
-	-clang -x c -w $(TEST)/examples/example1.c1
-	@echo
-	@echo "* Compiling example2.c1."
-	@echo
-	clang -x c -w $(TEST)/examples/example2.c1
-	@echo
-	@echo "* Running example2, which will print a sorted number list."
-	@echo
-	-./a.out
-	@echo
-	@echo "* Compiling example3.c1."
-	@echo
-	clang -x c -w $(TEST)/examples/example3.c1
-	@echo
-	@echo "* Running example3, which will print whether a number is prime."
-	@echo
-	-./a.out
-	-rm -f a.out
-
-P2: pre-build $(BIN)/kaleidoscope
-	@echo
-	@echo "* Running kaleidoscope lexer. Notice all comments are ignored."
-	@echo
-	$(BIN)/kaleidoscope < $(TEST)/examples/kaleidoscope_ex1.k
-	@echo
-	make test_lexer
-
-P3: pre-build $(BIN)/kaleidoscope
-	@echo
-	@echo "* Running kaleidoscope parser. Check output*.png."
-	@echo
-
-# rules
-
-$(SRC)/%.yy.cpp: $(SRC)/%.l
-	$(LEX) -o $@ $<
-
-$(BIN)/*.o: $(INCLUDE)/common.h $(INCLUDE)/helpers.h
-
-$(OBJ)/%.yy.o: $(SRC)/%.yy.cpp
-	$(CC) $(CXXFLAGS) -c -o $@ $<
-
-$(OBJ)/%.o: $(SRC)/%.cpp
-	$(CC) $(CXXFLAGS) -Wall -c -o $@ $<
-
-$(OBJ)/%.o: $(TEST)/%.cpp
-	$(CC) $(CXXFLAGS) -Wall -c -o $@ $<
-
+# Targets for TA
+P2: all test_scanner
