@@ -5,6 +5,5 @@ def fib(x)
    else
       fib(x-1)+fib(x-2)
 
-/* This expression will compute the 40th number. */
-fib(0x19 + 017)
+fib(20)
 

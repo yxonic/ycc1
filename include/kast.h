@@ -1,5 +1,5 @@
-#ifndef _AST_H_
-#define _AST_H_
+#ifndef _KAST_H_
+#define _KAST_H_
 
 #include "llvm/IR/IRBuilder.h"
 #include <cctype>
@@ -15,6 +15,7 @@ using namespace llvm;
 // Abstract Syntax Tree (aka Parse Tree)
 //===----------------------------------------------------------------------===//
 namespace ast {
+
 /// ExprAST - Base class for all expression nodes.
 class ExprAST {
 public:
@@ -85,8 +86,19 @@ class ForExprAST : public ExprAST {
 
 public:
     ForExprAST(const std::string &varname, ExprAST *start, ExprAST *end,
-            ExprAST *step, ExprAST *body)
+               ExprAST *step, ExprAST *body)
         : VarName(varname), Start(start), End(end), Step(step), Body(body) {}
+    virtual Value *Codegen();
+    int dumpdot(DumpDOT *dumper);
+};
+
+/// WhileExprAST - Expression class for while.
+class WhileExprAST : public ExprAST {
+    ExprAST *Cond, *Body;
+
+public:
+    WhileExprAST(ExprAST *cond, ExprAST *body)
+        : Cond(cond), Body(body) {}
     virtual Value *Codegen();
     int dumpdot(DumpDOT *dumper);
 };
@@ -117,6 +129,7 @@ public:
     Function *Codegen();
     int dumpdot(DumpDOT *dumper);
 };
-} // end anonymous namespace
+
+} // end namespace ast
 
 #endif
