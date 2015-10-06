@@ -45,3 +45,14 @@ P2要求的工作的编译、测试，可以通过以下命令进行。
 <TokenType[, Value]>。测试用输入文件保存于`test/examples`。
 
 有关clang的学习笔记在doc/clang.md中。
+
+# P3
+
+P3要求的工作的编译、测试，可以通过以下命令进行。
+
+    make P3
+
+测试用输入文件保存于`test/examples/`。
+
+有关tutorial的学习笔记在`doc/kaleidoscope.md`中。3.1中问题则在
+`doc/P3.md`中回答。

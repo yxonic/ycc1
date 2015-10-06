@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "ast.h"
+#include "kast.h"
 #include "dumpdot.h"
 
 //===----------------------------------------------------------------------===//
@@ -152,6 +152,15 @@ int ForExprAST::dumpdot(DumpDOT *dumper) {
     return nThis;
 }
 
+int WhileExprAST::dumpdot(DumpDOT *dumper) {
+    int nThis = dumper->newNode(2, "cond", "body");
+    int nCond = Cond->dumpdot(dumper);
+    int nBody = Body->dumpdot(dumper);
+    dumper->drawLine(nThis, 0, nCond);
+    dumper->drawLine(nThis, 1, nBody);
+    return nThis;    
+}
+    
 int PrototypeAST::dumpdot(DumpDOT *dumper) {
     std::vector<std::string> vec;
     vec.push_back(Name);
