@@ -33,6 +33,9 @@ test_kaleidoscope: pre-build
 	-rm toy.dot
 
 # Targets for TA
+P1:
+	@echo 'Please checkout to tag P1 to run tests for P1.'
+
 P2: test_scanner
 
 P3: test_kaleidoscope
