@@ -17,7 +17,7 @@ test/下（其中测试用例放在test/examples/下）。
 
 为了方便，我在Makefile中写了许多target。项目作为一个工程，相关的target
 在README中有说明。而另外一些target则纯粹方便检查，具体来讲，助教在检查
-第n次作业时，只需要执行 make Pn 即可。
+第n次作业时，只需要checkout到相应tag下，然后执行 make Pn 即可。
 
 对于每次实验的详细说明今后会在这个文档中更新。
 
@@ -45,3 +45,14 @@ P2要求的工作的编译、测试，可以通过以下命令进行。
 <TokenType[, Value]>。测试用输入文件保存于`test/examples`。
 
 有关clang的学习笔记在doc/clang.md中。
+
+# P3
+
+P3要求的工作的编译、测试，可以通过以下命令进行。
+
+    make P3
+
+测试用输入文件保存于`test/examples/`。
+
+有关tutorial的学习笔记在`doc/kaleidoscope.md`中。3.1中问题则在
+`doc/P3.md`中回答。
