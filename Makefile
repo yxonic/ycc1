@@ -1,6 +1,7 @@
 export CC=clang
 export CXX=clang++
 export CXXFLAGS = -Wno-deprecated-register -Wall
+
 all: pre-build
 	@echo 'Building with CMake...'
 	@cd dist; cmake ../; make -s
@@ -22,16 +23,17 @@ test_kaleidoscope: pre-build
 	@cd dist; cmake ../; make -s kaleidoscope
 	@echo
 	@tput setaf 3; echo '* Test input files are in test/examples/. Output files are test*.png.'; tput sgr0
-	dist/kaleidoscope < dist/examples/kaleidoscope_ex1.k 2&>/dev/null
+	dist/kaleidoscope < dist/examples/kaleidoscope_ex1.k 2>/dev/null
 	dot toy.dot -Tpng -o test1.png
-	dist/kaleidoscope < dist/examples/kaleidoscope_ex2.k 2&>/dev/null
+	dist/kaleidoscope < dist/examples/kaleidoscope_ex2.k 2>/dev/null
 	dot toy.dot -Tpng -o test2.png
 	-rm toy.dot
 
-test_parser:
+test_parser: pre-build
 	@cd dist; cmake ../; make -s test_parser
 	@echo
 	@tput setaf 3; echo '* Run dist/test_parser'; tput sgr0
+	dist/test_parser dist/examples/example0.c1 2>/dev/null
 
 # Targets for TA
 P1:
@@ -43,3 +45,8 @@ P2:
 P3: test_kaleidoscope
 	@echo
 	@tput setaf 3; echo '* Check doc/P3.md for answers.'; tput sgr0
+
+P4: test_parser
+	@echo
+	@tput setaf 3; echo '* Check doc/P4.md for answers.'; tput sgr0
+

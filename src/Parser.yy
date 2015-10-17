@@ -18,7 +18,6 @@ class ParsingDriver;
     @$.begin.filename = @$.end.filename = &driver.filename;
 }
 
-%define parse.trace
 %define parse.error verbose
 
 %code
@@ -52,6 +51,7 @@ assignments:    %empty {}
         |       assignments assignment {};
 assignment:     "identifier" "=" exp
                 { driver.variables[$1] = $3; };
+
 %left "+" "-";
 %left "*" "/";
 exp:            exp "+" exp

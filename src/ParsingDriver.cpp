@@ -15,5 +15,5 @@ int ParsingDriver::parse(const std::string &f)
     yy::Parser parser(*this);
     parser.parse();
     scan_end();
-    return 0;
+    return result;
 }

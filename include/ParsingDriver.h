@@ -1,5 +1,4 @@
-#ifndef PARSING_DRIVER_H
-#define PARSING_DRIVER_H
+#pragma once
 
 #include <string>
 #include <map>
@@ -28,4 +27,3 @@ private:
     void scan_end();
 };
 
-#endif

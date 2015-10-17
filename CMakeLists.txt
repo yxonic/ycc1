@@ -24,7 +24,7 @@ flex_target(Lexer src/Lexer.ll ${CMAKE_CURRENT_BINARY_DIR}/Lexer.yy.cc)
 find_package(BISON REQUIRED)
 bison_target(Parser src/Parser.yy ${CMAKE_CURRENT_BINARY_DIR}/Parser.tab.cc)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-add_executable(test_parser test/test_parser.cpp
+add_executable(test_parser test/test_parser.cpp src/ParsingDriver.cpp
   ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
 
 # Install examples
