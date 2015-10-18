@@ -1,14 +1,6 @@
 #include "ParsingDriver.h"
 #include "Utils.h"
 
-ParsingDriver::ParsingDriver()
-{
-}
-
-ParsingDriver::~ParsingDriver()
-{
-}
-
 int ParsingDriver::parse(const std::string &f)
 {
     filename = f;
@@ -17,5 +9,5 @@ int ParsingDriver::parse(const std::string &f)
     yy::Parser parser(*this);
     parser.parse();
     scan_end();
-    return result;
+    return 0;
 }

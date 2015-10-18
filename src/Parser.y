@@ -1,5 +1,5 @@
 %skeleton "lalr1.cc"
-                        
+
 %defines
 %define parser_class_name {Parser}
 %define api.token.constructor
@@ -20,6 +20,7 @@ class ParsingDriver;
     @$.begin.filename = @$.end.filename = &driver.filename;
 }
 
+%define parse.trace
 %define parse.error verbose
 
 %code
@@ -70,7 +71,7 @@ class ParsingDriver;
 %left "+" "-"
 %left "*" "/" "%"
 %precedence UNARY
-                                                
+
 %type   <ast::Exp *> exp
 %type   <ast::LVal *> lval
 %type   <ast::Cond *> cond
@@ -95,6 +96,7 @@ compunit:       %empty
                 {
                     $$ = new ast::CompUnit();
                     INFO("%s", $$->production.c_str());
+                    driver.root = $$;
                 }
         |       compunit funcdef
                 {
@@ -111,6 +113,7 @@ compunit:       %empty
 funcdef:        "void" ID "(" ")" block
                 {
                     $$ = new ast::FuncDef(new ast::Ident($2), $5);
+                    INFO("%s", $$->production.c_str());
                 }
         ;
 
@@ -121,6 +124,7 @@ stmt:           matched
 matched:        "if" "(" cond ")" matched "else" matched
                 {
                     $$ = new ast::IfStmt($3, $5, $7);
+                    INFO("%s", $$->production.c_str());
                 }
         |       otherstmt
                 {
@@ -130,10 +134,38 @@ matched:        "if" "(" cond ")" matched "else" matched
 unmatched:      "if" "(" cond ")" stmt
                 {
                     $$ = new ast::IfStmt($3, $5);
+                    INFO("%s", $$->production.c_str());
                 }
         |       "if" "(" cond ")" matched "else" unmatched
                 {
                     $$ = new ast::IfStmt($3, $5, $7);
+                    INFO("%s", $$->production.c_str());
+                }
+        ;
+
+otherstmt:      lval "=" exp ";"
+                {
+                    $$ = new ast::AsgnStmt($1, $3);
+                    INFO("%s", $$->production.c_str());
+                }
+        |       "while" "(" cond ")" otherstmt
+                {
+                    $$ = new ast::WhileStmt($3, $5);
+                    INFO("%s", $$->production.c_str());
+                }
+        |       ";"
+                {
+                    $$ = new ast::Stmt();
+                    INFO("%s", $$->production.c_str());
+                }
+        |       ID "(" ")" ";"
+                {
+                    $$ = new ast::FuncCall(new ast::Ident($1));
+                    INFO("%s", $$->production.c_str());
+                }
+        |       block
+                {
+                    $$ = $1;
                 }
         ;
 
@@ -201,7 +233,7 @@ vars:           var
                 {
                     $$ = new ast::Vars();
                     INFO("%s", $$->production.c_str());
-                    $$->append($1);                    
+                    $$->append($1);
                 }
         |       vars "," var
                 {
@@ -225,33 +257,11 @@ var:            ID
                     // with initialization
                     $$ = new ast::Var(new ast::Ident($1), $3, true);
                     INFO("%s", $$->production.c_str());
-                    driver.result = $3->calc();
                 }
         |       ID "[" exp "]" "=" "{" exps "}"
                 {
                     $$ = new ast::Var(new ast::Ident($1), $3, $7);
                     INFO("%s", $$->production.c_str());
-                }
-        ;
-
-otherstmt:      lval "=" exp ";"
-                {
-                    $$ = new ast::AsgnStmt($1, $3);
-                    INFO("%s", $$->production.c_str());
-                }
-        |       "while" "(" cond ")" otherstmt
-                {
-                    $$ = new ast::WhileStmt($3, $5);
-                    INFO("%s", $$->production.c_str());
-                }
-        |       ";"
-                {
-                    $$ = new ast::Stmt();
-                    INFO("%s", $$->production.c_str());
-                }
-        |       block
-                {
-                    $$ = $1;
                 }
         ;
 
@@ -342,7 +352,7 @@ cond:           "odd" exp
         |       cond "and" cond
                 {
                     $$ = new ast::Cond("and", $1, $3);
-                    INFO("%s", $$->production.c_str());                    
+                    INFO("%s", $$->production.c_str());
                 }
         |       cond "or" cond
                 {
@@ -357,6 +367,26 @@ cond:           "odd" exp
         |       exp "!=" exp
                 {
                     $$ = new ast::Cond("!=", $1, $3);
+                    INFO("%s", $$->production.c_str());
+                }
+        |       exp "<" exp
+                {
+                    $$ = new ast::Cond("<", $1, $3);
+                    INFO("%s", $$->production.c_str());
+                }
+        |       exp "<=" exp
+                {
+                    $$ = new ast::Cond("<=", $1, $3);
+                    INFO("%s", $$->production.c_str());
+                }
+        |       exp ">" exp
+                {
+                    $$ = new ast::Cond(">", $1, $3);
+                    INFO("%s", $$->production.c_str());
+                }
+        |       exp ">=" exp
+                {
+                    $$ = new ast::Cond(">=", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         ;

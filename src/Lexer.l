@@ -8,7 +8,7 @@
 
 static yy::location loc;
 %}
-%option noyywrap nounput batch debug noinput
+%option noyywrap nounput batch noinput
 
 delim           [ \t\n]
 ws              {delim}+

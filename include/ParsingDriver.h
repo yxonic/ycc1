@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include "Parser.tab.hh"
+#include "AST.h"
 
 // Tell flex to declare a proper yylex.
 #define YY_DECL                                                         \
@@ -12,13 +13,14 @@ YY_DECL;
     
 class ParsingDriver {
 public:
-    ParsingDriver();
-    virtual ~ParsingDriver();
+    ParsingDriver() = default;
 
-    int result;
+    ast::AST *root = nullptr;
+    
     // Run the parser on file
     int parse(const std::string &f);
     friend class yy::Parser;
+    
 private:
     std::string filename;
     std::map<std::string, int> variables;

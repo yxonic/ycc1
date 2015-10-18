@@ -86,10 +86,16 @@ namespace ast {
         components.push_back(b);
         production = "FuncDef -> void ID ( ) Block";
     }
-
+    
     Stmt::Stmt()
     {
         production = "Stmt -> ;";
+    }
+
+    FuncCall::FuncCall(Ident *id)
+    {
+        components.push_back(id);
+        production = "Stmt -> void ID ( ) ;";
     }
 
     Block::Block()
@@ -154,7 +160,7 @@ namespace ast {
         if (s == "()")
             production = "Exp -> (Exp)";
         else if (s == "V")
-            production = "Exp -> RVal";
+            production = "Exp -> LVal";
         else if (s == "Num")
             production = "Exp -> Number";
         else

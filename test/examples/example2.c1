@@ -9,7 +9,7 @@ void main()
         t = arr[i];
         j = i;
         flag = 1;
-        while (flag) {
+        while (flag != 0) {
             if (j == 0)
                 flag = 0;
             else if (arr[j - 1] > t) {

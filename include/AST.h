@@ -87,6 +87,11 @@ namespace ast {
         Stmt();
     };
     
+    class FuncCall : public Stmt {
+    public:
+        FuncCall(Ident *);
+    };
+    
     class Block : public Stmt {
     public:
         Block();
@@ -118,7 +123,7 @@ namespace ast {
     
     class Exp : public AST {
         // "()" for paren-expr, "P" for unary plus, "N" for unary
-        // minus, "V" for RVal, and "Num" for number.
+        // minus, "V" for LVal, and "Num" for number.
         std::string op;
     public:
         Exp() = default;
