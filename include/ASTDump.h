@@ -6,6 +6,7 @@
 
 class ASTDump {
 public:
+    ASTDump() = default;
     ASTDump(std::string f) : fname(f), fout(f) { }
     virtual int newNode(int num, ...);
     virtual int newNode(std::vector<std::string> list);

@@ -33,7 +33,7 @@ test_parser: pre-build
 	@cd dist; cmake ../; make -s test_parser
 	@echo
 	@tput setaf 3; echo '* Run dist/test_parser'; tput sgr0
-	dist/test_parser dist/examples/example0.c1 2>/dev/null
+	dist/test_parser dist/examples/example0.c1
 
 # Targets for TA
 P1:

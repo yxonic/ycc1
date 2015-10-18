@@ -20,11 +20,12 @@ target_link_libraries(kaleidoscope ${llvm_libs})
 
 # Build test_parser
 find_package(FLEX REQUIRED)
-flex_target(Lexer src/Lexer.ll ${CMAKE_CURRENT_BINARY_DIR}/Lexer.yy.cc)
+flex_target(Lexer src/Lexer.l ${CMAKE_CURRENT_BINARY_DIR}/Lexer.yy.cc)
 find_package(BISON REQUIRED)
-bison_target(Parser src/Parser.yy ${CMAKE_CURRENT_BINARY_DIR}/Parser.tab.cc)
+bison_target(Parser src/Parser.y ${CMAKE_CURRENT_BINARY_DIR}/Parser.tab.cc)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-add_executable(test_parser test/test_parser.cpp src/ParsingDriver.cpp
+add_executable(test_parser test/test_parser.cpp
+  src/ParsingDriver.cpp src/AST.cpp
   ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
 
 # Install examples
