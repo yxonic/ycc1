@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 #include "Parser.tab.hh"
 #include "AST.h"
 
@@ -15,7 +16,7 @@ class ParsingDriver {
 public:
     ParsingDriver() = default;
 
-    ast::AST *root = nullptr;
+    std::shared_ptr<ast::AST> root;
     
     // Run the parser on file
     int parse(const std::string &f);

@@ -2,7 +2,9 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
+#include "Utils.h"
 #include "ASTDump.h"
 
 namespace ast {
@@ -13,9 +15,9 @@ namespace ast {
         AST() = default;
         virtual void dump(ASTDump &);
         std::string production;
-        void append(AST *e) { components.push_back(e); }
+        void append(std::shared_ptr<AST> e) { components.push_back(e); }
     protected:
-        std::vector<AST *> components;
+        std::vector<std::shared_ptr<AST>> components;
     };
 
     // AST declarations for specific grammar elements
@@ -47,8 +49,8 @@ namespace ast {
     public:
         enum Type { CONST, VAR };
         Type type;
-        Decl(ConstDefs *);
-        Decl(Vars *);
+        Decl(std::shared_ptr<ConstDefs>);
+        Decl(std::shared_ptr<Vars>);
     };
 
     class ConstDefs : public AST {
@@ -59,8 +61,9 @@ namespace ast {
     class ConstDef : public AST {
         bool is_array = false;
     public:
-        ConstDef(Ident *, Exp *);
-        ConstDef(Ident *, Exp *, Exps *);
+        ConstDef(std::shared_ptr<Ident>, std::shared_ptr<Exp>);
+        ConstDef(std::shared_ptr<Ident>, std::shared_ptr<Exp>,
+                 std::shared_ptr<Exps>);
     };
 
     class Vars : public AST {
@@ -72,14 +75,15 @@ namespace ast {
         bool is_array = false;
         bool init = false;
     public:
-        Var(Ident *);
-        Var(Ident *, Exp *, bool = false);
-        Var(Ident *, Exp *, Exps *);
+        Var(std::shared_ptr<Ident>);
+        Var(std::shared_ptr<Ident>, std::shared_ptr<Exp>, bool = false);
+        Var(std::shared_ptr<Ident>, std::shared_ptr<Exp>,
+            std::shared_ptr<Exps>);
     };
 
     class FuncDef : public AST {
     public:
-        FuncDef(Ident *, Block *);
+        FuncDef(std::shared_ptr<Ident>, std::shared_ptr<Block>);
     };
     
     class Stmt : public AST {
@@ -89,7 +93,7 @@ namespace ast {
     
     class FuncCall : public Stmt {
     public:
-        FuncCall(Ident *);
+        FuncCall(std::shared_ptr<Ident>);
     };
     
     class Block : public Stmt {
@@ -99,26 +103,27 @@ namespace ast {
 
     class AsgnStmt : public Stmt {
     public:
-        AsgnStmt(LVal *, Exp *);
+        AsgnStmt(std::shared_ptr<LVal>, std::shared_ptr<Exp>);
     };
 
     class IfStmt : public Stmt {
     public:
-        IfStmt(Cond *, Stmt *, Stmt * = nullptr);
+        IfStmt(std::shared_ptr<Cond>, std::shared_ptr<Stmt>,
+               std::shared_ptr<Stmt> = nullptr);
     };
 
     class WhileStmt : public Stmt {
     public:
-        WhileStmt(Cond *, Stmt *);
+        WhileStmt(std::shared_ptr<Cond>, std::shared_ptr<Stmt>);
     };
 
     class Cond : public AST {
         std::string op;
     public:
-        Cond(Cond *);
-        Cond(std::string, Cond *, Cond *);
-        Cond(std::string, Exp *);
-        Cond(std::string, Exp *, Exp *);
+        Cond(std::shared_ptr<Cond>);
+        Cond(std::string, std::shared_ptr<Cond>, std::shared_ptr<Cond>);
+        Cond(std::string, std::shared_ptr<Exp>);
+        Cond(std::string, std::shared_ptr<Exp>, std::shared_ptr<Exp>);
     };
     
     class Exp : public AST {
@@ -127,8 +132,8 @@ namespace ast {
         std::string op;
     public:
         Exp() = default;
-        Exp(std::string, Exp *);
-        Exp(std::string, Exp *, Exp *);
+        Exp(std::string, std::shared_ptr<Exp>);
+        Exp(std::string, std::shared_ptr<Exp>, std::shared_ptr<Exp>);
         virtual int calc();
     };
 
@@ -147,11 +152,10 @@ namespace ast {
     };
 
     class LVal : public Exp {
-        Ident *id;
         bool is_array = false;
     public:
-        LVal(Ident *, Exp * = nullptr);
-        int calc() override { return id->calc(); }
+        LVal(std::shared_ptr<Ident>, std::shared_ptr<Exp> = nullptr);
+        int calc() override { return 0; }
     };
 
     class Exps : public AST {

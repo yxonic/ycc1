@@ -7,7 +7,9 @@
 %define parse.assert
 %code requires
 {
+#include <iostream>
 #include <string>
+#include <memory>
 #include "Utils.h"
 #include "AST.h"
 class ParsingDriver;
@@ -72,29 +74,29 @@ class ParsingDriver;
 %left "*" "/" "%"
 %precedence UNARY
 
-%type   <ast::Exp *> exp
-%type   <ast::LVal *> lval
-%type   <ast::Cond *> cond
-%type   <ast::Stmt *> stmt
-%type   <ast::Stmt *> matched
-%type   <ast::Stmt *> unmatched
-%type   <ast::Stmt *> otherstmt
-%type   <ast::Block *> block
-%type   <ast::Block *> blockitem
-%type   <ast::Decl *> decl
-%type   <ast::ConstDefs *> constdefs
-%type   <ast::ConstDef *> constdef
-%type   <ast::Vars *> vars
-%type   <ast::Var *> var
-%type   <ast::Exps *> exps
-%type   <ast::CompUnit *> compunit
-%type   <ast::FuncDef *> funcdef
+%type   <std::shared_ptr<ast::Exp>> exp
+%type   <std::shared_ptr<ast::LVal>> lval
+%type   <std::shared_ptr<ast::Cond>> cond
+%type   <std::shared_ptr<ast::Stmt>> stmt
+%type   <std::shared_ptr<ast::Stmt>> matched
+%type   <std::shared_ptr<ast::Stmt>> unmatched
+%type   <std::shared_ptr<ast::Stmt>> otherstmt
+%type   <std::shared_ptr<ast::Block>> block
+%type   <std::shared_ptr<ast::Block>> blockitem
+%type   <std::shared_ptr<ast::Decl>> decl
+%type   <std::shared_ptr<ast::ConstDefs>> constdefs
+%type   <std::shared_ptr<ast::ConstDef>> constdef
+%type   <std::shared_ptr<ast::Vars>> vars
+%type   <std::shared_ptr<ast::Var>> var
+%type   <std::shared_ptr<ast::Exps>> exps
+%type   <std::shared_ptr<ast::CompUnit>> compunit
+%type   <std::shared_ptr<ast::FuncDef>> funcdef
 
 %%
 
 compunit:       %empty
                 {
-                    $$ = new ast::CompUnit();
+                    $$ = std::make_shared<ast::CompUnit>();
                     INFO("%s", $$->production.c_str());
                     driver.root = $$;
                 }
@@ -112,7 +114,8 @@ compunit:       %empty
 
 funcdef:        "void" ID "(" ")" block
                 {
-                    $$ = new ast::FuncDef(new ast::Ident($2), $5);
+                    $$ = std::make_shared<ast::FuncDef>(
+                        std::make_shared<ast::Ident>($2), $5);
                     INFO("%s", $$->production.c_str());
                 }
         ;
@@ -123,7 +126,7 @@ stmt:           matched
 
 matched:        "if" "(" cond ")" matched "else" matched
                 {
-                    $$ = new ast::IfStmt($3, $5, $7);
+                    $$ = std::make_shared<ast::IfStmt>($3, $5, $7);
                     INFO("%s", $$->production.c_str());
                 }
         |       otherstmt
@@ -133,39 +136,44 @@ matched:        "if" "(" cond ")" matched "else" matched
         ;
 unmatched:      "if" "(" cond ")" stmt
                 {
-                    $$ = new ast::IfStmt($3, $5);
+                    $$ = std::make_shared<ast::IfStmt>($3, $5);
                     INFO("%s", $$->production.c_str());
                 }
         |       "if" "(" cond ")" matched "else" unmatched
                 {
-                    $$ = new ast::IfStmt($3, $5, $7);
+                    $$ = std::make_shared<ast::IfStmt>($3, $5, $7);
                     INFO("%s", $$->production.c_str());
                 }
         ;
 
 otherstmt:      lval "=" exp ";"
                 {
-                    $$ = new ast::AsgnStmt($1, $3);
+                    $$ = std::make_shared<ast::AsgnStmt>($1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       "while" "(" cond ")" otherstmt
                 {
-                    $$ = new ast::WhileStmt($3, $5);
+                    $$ = std::make_shared<ast::WhileStmt>($3, $5);
                     INFO("%s", $$->production.c_str());
                 }
         |       ";"
                 {
-                    $$ = new ast::Stmt();
+                    $$ = std::make_shared<ast::Stmt>();
                     INFO("%s", $$->production.c_str());
                 }
         |       ID "(" ")" ";"
                 {
-                    $$ = new ast::FuncCall(new ast::Ident($1));
+                    $$ = std::make_shared<ast::FuncCall>(
+                        std::make_shared<ast::Ident>($1));
                     INFO("%s", $$->production.c_str());
                 }
         |       block
                 {
                     $$ = $1;
+                }
+        |       error ";"
+                {
+                    $$ = std::make_shared<ast::Stmt>();
                 }
         ;
 
@@ -177,7 +185,7 @@ block:          "{" blockitem "}"
 
 blockitem:      %empty
                 {
-                    $$ = new ast::Block();
+                    $$ = std::make_shared<ast::Block>();
                     INFO("%s", $$->production.c_str());
                 }
         |       blockitem stmt
@@ -194,19 +202,25 @@ blockitem:      %empty
 
 decl:           "const" "int" constdefs ";"
                 {
-                    $$ = new ast::Decl($3);
+                    $$ = std::make_shared<ast::Decl>($3);
                     INFO("%s", $$->production.c_str());
                 }
         |       "int" vars ";"
                 {
-                    $$ = new ast::Decl($2);
+                    $$ = std::make_shared<ast::Decl>($2);
                     INFO("%s", $$->production.c_str());
+                }
+        |       "const" constdefs ";"
+                {
+                    $$ = std::make_shared<ast::Decl>($2);
+                    INFO("%s", $$->production.c_str());
+                    WARN("Should generate warning.");
                 }
         ;
 
 constdefs:      constdef
                 {
-                    $$ = new ast::ConstDefs();
+                    $$ = std::make_shared<ast::ConstDefs>();
                     INFO("%s", $$->production.c_str());
                     $$->append($1);
                 }
@@ -219,19 +233,21 @@ constdefs:      constdef
 
 constdef:       ID "=" exp
                 {
-                    $$ = new ast::ConstDef(new ast::Ident($1), $3);
+                    $$ = std::make_shared<ast::ConstDef>(
+                        std::make_shared<ast::Ident>($1), $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       ID "[" exp "]" "=" "{" exps "}"
                 {
-                    $$ = new ast::ConstDef(new ast::Ident($1), $3, $7);
+                    $$ = std::make_shared<ast::ConstDef>(
+                        std::make_shared<ast::Ident>($1), $3, $7);
                     INFO("%s", $$->production.c_str());
                 }
         ;
 
 vars:           var
                 {
-                    $$ = new ast::Vars();
+                    $$ = std::make_shared<ast::Vars>();
                     INFO("%s", $$->production.c_str());
                     $$->append($1);
                 }
@@ -244,30 +260,34 @@ vars:           var
 
 var:            ID
                 {
-                    $$ = new ast::Var(new ast::Ident($1));
+                    $$ = std::make_shared<ast::Var>(
+                        std::make_shared<ast::Ident>($1));
                     INFO("%s", $$->production.c_str());
                 }
         |       ID "[" exp "]"
                 {
-                    $$ = new ast::Var(new ast::Ident($1), $3);
+                    $$ = std::make_shared<ast::Var>(
+                        std::make_shared<ast::Ident>($1), $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       ID "=" exp
                 {
                     // with initialization
-                    $$ = new ast::Var(new ast::Ident($1), $3, true);
+                    $$ = std::make_shared<ast::Var>(
+                        std::make_shared<ast::Ident>($1), $3, true);
                     INFO("%s", $$->production.c_str());
                 }
         |       ID "[" exp "]" "=" "{" exps "}"
                 {
-                    $$ = new ast::Var(new ast::Ident($1), $3, $7);
+                    $$ = std::make_shared<ast::Var>
+                        (std::make_shared<ast::Ident>($1), $3, $7);
                     INFO("%s", $$->production.c_str());
                 }
         ;
 
 exps:           exp
                 {
-                    $$ = new ast::Exps();
+                    $$ = std::make_shared<ast::Exps>();
                     INFO("%s", $$->production.c_str());
                     $$->append($1);
                 }
@@ -280,118 +300,121 @@ exps:           exp
 
 exp:            NUMBER
                 {
-                    $$ = new ast::Exp("Num", new ast::Number($1));
+                    $$ = std::make_shared<ast::Exp>(
+                        "Num", std::make_shared<ast::Number>($1));
                     INFO("%s", $$->production.c_str());
                 }
         |       lval
                 {
-                    $$ = new ast::Exp("V", $1);
+                    $$ = std::make_shared<ast::Exp>("V", $1);
                     INFO("%s", $$->production.c_str());
                 }
         |       "-"exp %prec UNARY
                 {
-                    $$ = new ast::Exp("N", $2);
+                    $$ = std::make_shared<ast::Exp>("N", $2);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp "+" exp
                 {
-                    $$ = new ast::Exp("+", $1, $3);
+                    $$ = std::make_shared<ast::Exp>("+", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp "-" exp
                 {
-                    $$ = new ast::Exp("-", $1, $3);
+                    $$ = std::make_shared<ast::Exp>("-", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp "*" exp
                 {
-                    $$ = new ast::Exp("*", $1, $3);
+                    $$ = std::make_shared<ast::Exp>("*", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp "/" exp
                 {
                     if ($3 == 0)
                         ERROR("Can't be devided by zero.");
-                    $$ = new ast::Exp("/", $1, $3);
+                    $$ = std::make_shared<ast::Exp>("/", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp "%" exp
                 {
-                    $$ = new ast::Exp("%", $1, $3);
+                    $$ = std::make_shared<ast::Exp>("%", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       "(" exp ")"
                 {
-                    $$ = new ast::Exp("()", $2);
+                    $$ = std::make_shared<ast::Exp>("()", $2);
                     INFO("%s", $$->production.c_str());
                 }
         ;
 
 lval:           ID
                 {
-                    $$ = new ast::LVal(new ast::Ident($1));
+                    $$ = std::make_shared<ast::LVal>(
+                        std::make_shared<ast::Ident>($1));
                     INFO("%s", $$->production.c_str());
                 }
         |       ID "[" exp "]"
                 {
-                    $$ = new ast::LVal(new ast::Ident($1), $3);
+                    $$ = std::make_shared<ast::LVal>(
+                        std::make_shared<ast::Ident>($1), $3);
                     INFO("%s", $$->production.c_str());
                 }
         ;
 
 cond:           "odd" exp
                 {
-                    $$ = new ast::Cond("odd", $2);
+                    $$ = std::make_shared<ast::Cond>("odd", $2);
                     INFO("%s", $$->production.c_str());
                 }
         |       "!" cond %prec UNARY
                 {
-                    $$ = new ast::Cond($2);
+                    $$ = std::make_shared<ast::Cond>($2);
                     INFO("%s", $$->production.c_str());
                 }
         |       cond "and" cond
                 {
-                    $$ = new ast::Cond("and", $1, $3);
+                    $$ = std::make_shared<ast::Cond>("and", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       cond "or" cond
                 {
-                    $$ = new ast::Cond("or", $1, $3);
+                    $$ = std::make_shared<ast::Cond>("or", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp "==" exp
                 {
-                    $$ = new ast::Cond("==", $1, $3);
+                    $$ = std::make_shared<ast::Cond>("==", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp "!=" exp
                 {
-                    $$ = new ast::Cond("!=", $1, $3);
+                    $$ = std::make_shared<ast::Cond>("!=", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp "<" exp
                 {
-                    $$ = new ast::Cond("<", $1, $3);
+                    $$ = std::make_shared<ast::Cond>("<", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp "<=" exp
                 {
-                    $$ = new ast::Cond("<=", $1, $3);
+                    $$ = std::make_shared<ast::Cond>("<=", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp ">" exp
                 {
-                    $$ = new ast::Cond(">", $1, $3);
+                    $$ = std::make_shared<ast::Cond>(">", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         |       exp ">=" exp
                 {
-                    $$ = new ast::Cond(">=", $1, $3);
+                    $$ = std::make_shared<ast::Cond>(">=", $1, $3);
                     INFO("%s", $$->production.c_str());
                 }
         ;
 %%
 void yy::Parser::error(const location_type &l, const std::string& m)
 {
-    ERROR("Error occured!");
+    std::cerr << l << ": " << m << std::endl;
 }

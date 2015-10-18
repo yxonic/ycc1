@@ -13,14 +13,14 @@ namespace ast {
         production = "CompUnit -> CompUnit [Decl | FuncDef]";
     }
 
-    Decl::Decl(ConstDefs *d)
+    Decl::Decl(shared_ptr<ConstDefs> d)
     {
         production = "Decl -> const int ConstDefs ;";
         type = CONST;
         components.push_back(d);
     }
 
-    Decl::Decl(Vars *d)
+    Decl::Decl(shared_ptr<Vars> d)
     {
         production = "Decl -> int VarDefs ;";
         type = VAR;
@@ -32,14 +32,14 @@ namespace ast {
         production = "ConstDefs -> ConstDefs [ ConstDef ]";
     }
 
-    ConstDef::ConstDef(Ident *id, Exp *e)
+    ConstDef::ConstDef(shared_ptr<Ident> id, shared_ptr<Exp> e)
     {
         components.push_back(id);
         components.push_back(e);
         production = "ConstDef -> ID = Exp";
     }
 
-    ConstDef::ConstDef(Ident *id, Exp *e, Exps *el)
+    ConstDef::ConstDef(shared_ptr<Ident> id, shared_ptr<Exp> e, shared_ptr<Exps> el)
     {
         is_array = true;
         components.push_back(id);
@@ -54,13 +54,13 @@ namespace ast {
         production = "Vars -> Vars [ Var ]";
     }
 
-    Var::Var(Ident *id)
+    Var::Var(shared_ptr<Ident> id)
     {
         components.push_back(id);
         production = "Var -> ID";
     }
 
-    Var::Var(Ident *id, Exp *e, bool i)
+    Var::Var(shared_ptr<Ident> id, shared_ptr<Exp> e, bool i)
     {
         components.push_back(id);
         components.push_back(e);
@@ -72,7 +72,7 @@ namespace ast {
             production = "Var -> ID [ Exp ]";
     }
 
-    Var::Var(Ident *id, Exp *e, Exps *el)
+    Var::Var(shared_ptr<Ident> id, shared_ptr<Exp> e, shared_ptr<Exps> el)
     {
         components.push_back(id);
         components.push_back(e);
@@ -80,7 +80,7 @@ namespace ast {
         production = "Var -> ID [ Exp ] = Exps";
     }
 
-    FuncDef::FuncDef(Ident *id, Block *b)
+    FuncDef::FuncDef(shared_ptr<Ident> id, shared_ptr<Block> b)
     {
         components.push_back(id);
         components.push_back(b);
@@ -92,7 +92,7 @@ namespace ast {
         production = "Stmt -> ;";
     }
 
-    FuncCall::FuncCall(Ident *id)
+    FuncCall::FuncCall(shared_ptr<Ident> id)
     {
         components.push_back(id);
         production = "Stmt -> void ID ( ) ;";
@@ -103,14 +103,14 @@ namespace ast {
         production = "Block -> { Decl | Stmt }";
     }    
 
-    AsgnStmt::AsgnStmt(LVal *v, Exp *e)
+    AsgnStmt::AsgnStmt(shared_ptr<LVal> v, shared_ptr<Exp> e)
     {
         components.push_back(v);
         components.push_back(e);
         production = "Stmt -> LVal = Exp"; 
     }
 
-    IfStmt::IfStmt(Cond *c, Stmt *s1, Stmt *s2)
+    IfStmt::IfStmt(shared_ptr<Cond> c, shared_ptr<Stmt> s1, shared_ptr<Stmt> s2)
     {
         components.push_back(c);
         components.push_back(s1);
@@ -121,40 +121,40 @@ namespace ast {
         }
     }
 
-    WhileStmt::WhileStmt(Cond *c, Stmt *s)
+    WhileStmt::WhileStmt(shared_ptr<Cond> c, shared_ptr<Stmt> s)
     {
         components.push_back(c);
         components.push_back(s);
         production = "Stmt -> while ( Cond ) Stmt";
     }
     
-    Cond::Cond(Cond *c) : op("!")
+    Cond::Cond(shared_ptr<Cond> c) : op("!")
     {
         components.push_back(c);
         production = "Cond -> ! Cond";
     }
 
-    Cond::Cond(string s, Cond *c1, Cond *c2) : op(s)
+    Cond::Cond(string s, shared_ptr<Cond> c1, shared_ptr<Cond> c2) : op(s)
     {
         components.push_back(c1);
         components.push_back(c2);
         production = "Cond -> Cond " + op + " Cond";
     }
 
-    Cond::Cond(string s, Exp *e) : op(s)
+    Cond::Cond(string s, shared_ptr<Exp> e) : op(s)
     {
         components.push_back(e);
         production = "Cond -> " + op + " Exp";
     }
 
-    Cond::Cond(string s, Exp *e1, Exp *e2) : op(s)
+    Cond::Cond(string s, shared_ptr<Exp> e1, shared_ptr<Exp> e2) : op(s)
     {
         components.push_back(e1);
         components.push_back(e2);
         production = "Cond -> Exp " + op + " Exp";
     }
     
-    Exp::Exp(string s, Exp *e) : op(s)
+    Exp::Exp(string s, shared_ptr<Exp> e) : op(s)
     {
         components.push_back(e);
         if (s == "()")
@@ -167,14 +167,14 @@ namespace ast {
             production = "Exp -> UnaryOp Exp";
     }
     
-    Exp::Exp(string s, Exp *e1, Exp *e2) : op(s)
+    Exp::Exp(string s, shared_ptr<Exp> e1, shared_ptr<Exp> e2) : op(s)
     {
         production = "Exp -> Exp " + op + " Exp";
         components.push_back(e1);
         components.push_back(e2);
     }    
 
-    LVal::LVal(Ident *i, Exp *e) : id(i)
+    LVal::LVal(shared_ptr<Ident> i, shared_ptr<Exp> e)
     {
         production = "LVal -> ident";
         if (e) {
@@ -192,26 +192,26 @@ namespace ast {
     int Exp::calc()
     {
         if (op == "()" || op == "P")
-            return dynamic_cast<Exp *>(components[0])->calc();
+            return dynamic_cast<Exp *>(components[0].get())->calc();
         if (op == "N")
-            return -dynamic_cast<Exp *>(components[0])->calc();
+            return -dynamic_cast<Exp *>(components[0].get())->calc();
         if (op == "+")
-            return dynamic_cast<Exp *>(components[0])->calc() +
-                dynamic_cast<Exp *>(components[1])->calc();
+            return dynamic_cast<Exp *>(components[0].get())->calc() +
+                dynamic_cast<Exp *>(components[1].get())->calc();
         if (op == "-")
-            return dynamic_cast<Exp *>(components[0])->calc() -
-                dynamic_cast<Exp *>(components[1])->calc();
+            return dynamic_cast<Exp *>(components[0].get())->calc() -
+                dynamic_cast<Exp *>(components[1].get())->calc();
         if (op == "*")
-            return dynamic_cast<Exp *>(components[0])->calc() *
-                dynamic_cast<Exp *>(components[1])->calc();
+            return dynamic_cast<Exp *>(components[0].get())->calc() *
+                dynamic_cast<Exp *>(components[1].get())->calc();
         if (op == "/")
-            return dynamic_cast<Exp *>(components[0])->calc() /
-                dynamic_cast<Exp *>(components[1])->calc();
+            return dynamic_cast<Exp *>(components[0].get())->calc() /
+                dynamic_cast<Exp *>(components[1].get())->calc();
         if (op == "%")
-            return dynamic_cast<Exp *>(components[0])->calc() %
-                dynamic_cast<Exp *>(components[1])->calc();
+            return dynamic_cast<Exp *>(components[0].get())->calc() %
+                dynamic_cast<Exp *>(components[1].get())->calc();
         if (op == "Num")
-            return dynamic_cast<Exp *>(components[0])->calc();
+            return dynamic_cast<Exp *>(components[0].get())->calc();
         else
             return 0;
     }
