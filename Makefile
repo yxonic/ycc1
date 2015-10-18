@@ -1,6 +1,5 @@
 export CC=clang
 export CXX=clang++
-export CXXFLAGS = -Wno-deprecated-register -Wall
 
 all: pre-build
 	@echo 'Building with CMake...'
