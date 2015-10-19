@@ -14,8 +14,6 @@ YY_DECL;
     
 class ParsingDriver {
 public:
-    ParsingDriver() = default;
-
     std::shared_ptr<ast::AST> root;
     
     // Run the parser on file

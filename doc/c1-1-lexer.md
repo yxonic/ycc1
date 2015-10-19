@@ -38,11 +38,8 @@ more detailed usage of `flex`, refer to section *Using flex*.
 
 Besides, we also want to know how computers actually match strings
 according to regular expressions. And the solution is to convert
-regular expressions to finite automatons.
-
-## Finite Automata
-
-**TODO: Finish this part later.**
+regular expressions to finite automatons, which is fully described in
+the textbook.
 
 ## Using `flex`
 
@@ -98,3 +95,11 @@ Here is one way which allows you to track line information:
      \n        yylineno++;
      }
 
+Though lexical analysis is performed before parsing, in many
+tutorials, the order is different, where parser written in `bison` is
+taught first, then `flex`. That's because what the lexer do is merely
+providing tokens to the parser, therefore we need to know in what ways
+the parser will ask for tokens. By now, we can't write a lexer for
+later use, but can only write rules and see whether it correctly lexed
+the tokens. More details will be described in the next section about
+parser.
