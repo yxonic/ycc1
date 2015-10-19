@@ -1,0 +1,10 @@
+const a = 1;
+void func()
+{
+a+b c;
+func(;
+}
+void main()
+{
+func);
+}

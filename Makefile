@@ -39,6 +39,8 @@ test_parser: pre-build
 	dist/test_parser dist/examples/example2.c1
 	@echo
 	dist/test_parser dist/examples/example3.c1
+	@echo
+	dist/test_parser dist/examples/example4.c1
 
 # Targets for TA
 P1:
