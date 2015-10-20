@@ -28,6 +28,9 @@ class ParsingDriver;
 %code
 {
 #include "ParsingDriver.h"
+#include "Lexer.h"
+#undef yylex
+#define yylex driver.lexer->lex
 }
 
 %define api.token.prefix {TOK_}
@@ -416,5 +419,6 @@ cond:           "odd" exp
 %%
 void yy::Parser::error(const location_type &l, const std::string& m)
 {
+    // TODO: should use facilities in ParsingDriver.
     std::cerr << l << ": " << m << std::endl;
 }

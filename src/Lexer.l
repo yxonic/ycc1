@@ -1,14 +1,21 @@
 %{
+
 #include <cstdlib>
 #include <cerrno>
 #include <climits>
 #include <string>
+#include <fstream>
 #include "ParsingDriver.h"
 #include "Parser.tab.hh"
 
+// To store and pass the location info to the parser.
+// TODO: change this to class attribute.
 static yy::location loc;
+
 %}
-%option noyywrap nounput batch noinput
+%option c++
+%option noyywrap
+%option prefix="Base"
 
 delim           [ \t]
 ws              {delim}+
@@ -21,15 +28,17 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 %x IN_LINECOMMENT
 
 %{
-  // Code run each time a pattern is matched.
-  # define YY_USER_ACTION  loc.columns (yyleng);
+  // Code run each time a pattern is matched, which advances the
+  // position.
+  # define YY_USER_ACTION loc.columns(yyleng);
 %}
 
 %%
 
 %{
-  // Code run each time yylex is called.
-  loc.step ();
+  // Code run each time yylex is called, which starts counting line
+  // number from 1.
+  loc.step();
 %}
                         
 {ws}            { /* throw away whitespace */ }
@@ -48,7 +57,7 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 [^\n]+          // eat comment
 }
 
-[\n]+           loc.lines (yyleng); loc.step();
+[\n]+           loc.lines(YYLeng()); loc.step();
 "+"             return yy::Parser::make_PLUS(loc);
 "-"             return yy::Parser::make_MINUS(loc);
 "*"             return yy::Parser::make_STAR(loc);
@@ -82,22 +91,22 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 "odd"           return yy::Parser::make_ODD(loc);
 
 {number}        { char *endptr;
-                  long n = strtol(yytext, &endptr, 0);
+                  long n = strtol(YYText(), &endptr, 0);
                   return yy::Parser::make_NUMBER(n, loc); }
-{id}            return yy::Parser::make_ID(yytext, loc);
+{id}            return yy::Parser::make_ID(YYText(), loc);
 .
 <<EOF>>         return yy::Parser::make_END(loc);
 %%
-void ParsingDriver::scan_begin()
+
+/* This implementation of BaseFlexLexer::yylex() is required to fill
+ * the vtable. True lexing method is Lexer::lex(). */
+
+#ifdef yylex
+#undef yylex
+#endif
+
+int BaseFlexLexer::yylex()
 {
-    if (filename.empty() || filename == "-")
-        yyin = stdin;
-    else if (!(yyin = fopen(filename.c_str (), "r")))
-    {
-        exit (1);
-    }
-}
-void ParsingDriver::scan_end()
-{
-    fclose(yyin);
+    std::cerr << "in ExampleFlexLexer::yylex() !" << std::endl;
+    return 0;
 }

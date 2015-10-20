@@ -1,13 +1,17 @@
 #include "ParsingDriver.h"
 #include "Utils.h"
 
-int ParsingDriver::parse(const std::string &f)
+using namespace std;
+
+void ParsingDriver::initializeLexer()
 {
-    filename = f;
-    scan_begin();
-    INFO("Started parsing...");
+    lexer = std::make_shared<yy::Lexer>(fs);
+}
+
+int ParsingDriver::parse()
+{
+    initializeLexer();
     yy::Parser parser(*this);
     parser.parse();
-    scan_end();
     return 0;
 }
