@@ -26,8 +26,11 @@ find_package(BISON REQUIRED)
 bison_target(Parser src/Parser.y ${CMAKE_CURRENT_BINARY_DIR}/Parser.tab.cc)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_executable(test_parser test/test_parser.cpp
-  src/ParsingDriver.cpp src/AST.cpp
+  src/ParsingDriver.cpp src/AST.cpp src/Utils.cpp
   ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
 
 # Install examples
 file(COPY test/examples/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/examples/)
+
+# Test utils
+add_executable(test_utils src/Utils.cpp test/test_utils.cpp)

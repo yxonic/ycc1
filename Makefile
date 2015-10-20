@@ -17,7 +17,6 @@ clean:
 	-rm -rf dist
 	-rm -f *.png
 
-.PHONY: test_kaleidoscope
 test_kaleidoscope: pre-build
 	@cd dist; cmake ../; make -s kaleidoscope
 	@echo
@@ -41,6 +40,15 @@ test_parser: pre-build
 	dist/test_parser dist/examples/example3.c1
 	@echo
 	dist/test_parser dist/examples/example4.c1
+
+test_utils: pre-build
+	@cd dist; cmake ../; make -s test_utils
+	@echo
+	dist/test_utils
+	@tput setaf 3; echo '* Some logged to test.log'; tput sgr0
+	cat test.log
+	rm -f test.log
+
 
 # Targets for TA
 P1:

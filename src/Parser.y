@@ -100,7 +100,7 @@ class ParsingDriver;
 compunit:       %empty
                 {
                     $$ = std::make_shared<ast::CompUnit>();
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                     driver._ast_root = $$;
                 }
         |       compunit funcdef
@@ -125,7 +125,7 @@ funcdef:        "void" ID "(" ")" block
                 {
                     $$ = std::make_shared<ast::FuncDef>(
                         std::make_shared<ast::Ident>($2), $5);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         ;
 
@@ -136,7 +136,7 @@ stmt:           matched
 matched:        "if" "(" cond ")" matched "else" matched
                 {
                     $$ = std::make_shared<ast::IfStmt>($3, $5, $7);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       otherstmt
                 {
@@ -146,35 +146,35 @@ matched:        "if" "(" cond ")" matched "else" matched
 unmatched:      "if" "(" cond ")" stmt
                 {
                     $$ = std::make_shared<ast::IfStmt>($3, $5);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       "if" "(" cond ")" matched "else" unmatched
                 {
                     $$ = std::make_shared<ast::IfStmt>($3, $5, $7);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         ;
 
 otherstmt:      lval "=" exp ";"
                 {
                     $$ = std::make_shared<ast::AsgnStmt>($1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       "while" "(" cond ")" otherstmt
                 {
                     $$ = std::make_shared<ast::WhileStmt>($3, $5);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       ";"
                 {
                     $$ = std::make_shared<ast::Stmt>();
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       ID "(" ")" ";"
                 {
                     $$ = std::make_shared<ast::FuncCall>(
                         std::make_shared<ast::Ident>($1));
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       block
                 {
@@ -195,7 +195,7 @@ block:          "{" blockitem "}"
 blockitem:      %empty
                 {
                     $$ = std::make_shared<ast::Block>();
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       blockitem stmt
                 {
@@ -212,17 +212,17 @@ blockitem:      %empty
 decl:           "const" "int" constdefs ";"
                 {
                     $$ = std::make_shared<ast::Decl>($3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       "int" vars ";"
                 {
                     $$ = std::make_shared<ast::Decl>($2);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       "const" constdefs ";"
                 {
                     $$ = std::make_shared<ast::Decl>($2);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                     driver.warning("type specifier missing, defaults to "
                                    "\'int\'", @2);
                 }
@@ -231,7 +231,7 @@ decl:           "const" "int" constdefs ";"
 constdefs:      constdef
                 {
                     $$ = std::make_shared<ast::ConstDefs>();
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                     $$->append($1);
                 }
         |       constdefs "," constdef
@@ -245,20 +245,20 @@ constdef:       ID "=" exp
                 {
                     $$ = std::make_shared<ast::ConstDef>(
                         std::make_shared<ast::Ident>($1), $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       ID "[" exp "]" "=" "{" exps "}"
                 {
                     $$ = std::make_shared<ast::ConstDef>(
                         std::make_shared<ast::Ident>($1), $3, $7);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         ;
 
 vars:           var
                 {
                     $$ = std::make_shared<ast::Vars>();
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                     $$->append($1);
                 }
         |       vars "," var
@@ -272,33 +272,33 @@ var:            ID
                 {
                     $$ = std::make_shared<ast::Var>(
                         std::make_shared<ast::Ident>($1));
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       ID "[" exp "]"
                 {
                     $$ = std::make_shared<ast::Var>(
                         std::make_shared<ast::Ident>($1), $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       ID "=" exp
                 {
                     // with initialization
                     $$ = std::make_shared<ast::Var>(
                         std::make_shared<ast::Ident>($1), $3, true);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       ID "[" exp "]" "=" "{" exps "}"
                 {
                     $$ = std::make_shared<ast::Var>
                         (std::make_shared<ast::Ident>($1), $3, $7);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         ;
 
 exps:           exp
                 {
                     $$ = std::make_shared<ast::Exps>();
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                     $$->append($1);
                 }
         |       exps "," exp
@@ -312,49 +312,49 @@ exp:            NUMBER
                 {
                     $$ = std::make_shared<ast::Exp>(
                         "Num", std::make_shared<ast::Number>($1));
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       lval
                 {
                     $$ = std::make_shared<ast::Exp>("V", $1);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       "-"exp %prec UNARY
                 {
                     $$ = std::make_shared<ast::Exp>("N", $2);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp "+" exp
                 {
                     $$ = std::make_shared<ast::Exp>("+", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp "-" exp
                 {
                     $$ = std::make_shared<ast::Exp>("-", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp "*" exp
                 {
                     $$ = std::make_shared<ast::Exp>("*", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp "/" exp
                 {
                     if ($3 == 0)
-                        ERROR("Can't be devided by zero.");
+                        logger.error << "Can't be devided by zero.";
                     $$ = std::make_shared<ast::Exp>("/", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp "%" exp
                 {
                     $$ = std::make_shared<ast::Exp>("%", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       "(" exp ")"
                 {
                     $$ = std::make_shared<ast::Exp>("()", $2);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         ;
 
@@ -362,65 +362,65 @@ lval:           ID
                 {
                     $$ = std::make_shared<ast::LVal>(
                         std::make_shared<ast::Ident>($1));
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       ID "[" exp "]"
                 {
                     $$ = std::make_shared<ast::LVal>(
                         std::make_shared<ast::Ident>($1), $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         ;
 
 cond:           "odd" exp
                 {
                     $$ = std::make_shared<ast::Cond>("odd", $2);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       "!" cond %prec UNARY
                 {
                     $$ = std::make_shared<ast::Cond>($2);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       cond "and" cond
                 {
                     $$ = std::make_shared<ast::Cond>("and", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       cond "or" cond
                 {
                     $$ = std::make_shared<ast::Cond>("or", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp "==" exp
                 {
                     $$ = std::make_shared<ast::Cond>("==", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp "!=" exp
                 {
                     $$ = std::make_shared<ast::Cond>("!=", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp "<" exp
                 {
                     $$ = std::make_shared<ast::Cond>("<", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp "<=" exp
                 {
                     $$ = std::make_shared<ast::Cond>("<=", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp ">" exp
                 {
                     $$ = std::make_shared<ast::Cond>(">", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         |       exp ">=" exp
                 {
                     $$ = std::make_shared<ast::Cond>(">=", $1, $3);
-                    INFO("%s", $$->production.c_str());
+                    logger.debug << $$->production;
                 }
         ;
 %%
