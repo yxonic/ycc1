@@ -3,7 +3,7 @@
 #pragma once
 
 #include <string>
-#include <fstream>
+#include <sstream>
 #include <map>
 #include <memory>
 
@@ -16,10 +16,14 @@
 /// to a well-structured AST.
 class ParsingDriver {
 
+    enum ErrorLevel {
+        Error, Warning, Info
+    };
+
     std::string _file_name;
 
-    /// Input stream. Use cin when no file is specified.
-    std::shared_ptr<std::istream> _in_stream;
+    /// Input stream to be provide to the lexer.
+    std::stringstream _in_stream;
 
     /// Pointer to the lexer.
     std::shared_ptr<yy::Lexer> _lexer;
@@ -54,6 +58,12 @@ private:
     void initializeParser();
 
     // Error reporting.
-    void error(std::string);
+    void error(std::string, ErrorLevel = Error);
+    void error(std::string, const yy::location &, ErrorLevel = Error);
     void warning(std::string);
+    void warning(std::string, const yy::location &);
+    void info(std::string);
+    void info(std::string, const yy::location &);
+
+    std::string fit_text(std::string, size_t, bool = false);
 };

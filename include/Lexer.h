@@ -26,5 +26,7 @@ namespace yy {
             : BaseFlexLexer(in, out) { }
         virtual ~Lexer() { }
         virtual Parser::symbol_type lex(ParsingDriver &);
+        yy::location loc;
+        std::stringstream::pos_type marker;
     };
 }

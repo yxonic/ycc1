@@ -4,13 +4,10 @@
 #include <cerrno>
 #include <climits>
 #include <string>
-#include <fstream>
-#include "ParsingDriver.h"
+#include <sstream>
+#include "Lexer.h"
 #include "Parser.tab.hh"
-
-// To store and pass the location info to the parser.
-// TODO: change this to class attribute.
-static yy::location loc;
+#include "ParsingDriver.h"
 
 %}
 %option c++
@@ -49,15 +46,18 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 }
 <IN_COMMENT>{
 "*/"            BEGIN(INITIAL);
-[^*]+           // eat comment in chunks
+[^*\n]+         // eat comment in chunks
+"\n"            loc.lines(YYLeng()); loc.step(); marker = yyin->tellg();
 "*"             // eat the lone star
 }
 <IN_LINECOMMENT>{
-"\n"            BEGIN(INITIAL);
+"\n"            {
+loc.lines(YYLeng()); loc.step(); marker = yyin->tellg(); BEGIN(INITIAL);
+}
 [^\n]+          // eat comment
 }
 
-[\n]+           loc.lines(YYLeng()); loc.step();
+\n              loc.lines(YYLeng()); loc.step(); marker = yyin->tellg();
 "+"             return yy::Parser::make_PLUS(loc);
 "-"             return yy::Parser::make_MINUS(loc);
 "*"             return yy::Parser::make_STAR(loc);
