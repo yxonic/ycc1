@@ -19,7 +19,7 @@ class ParsingDriver;
 %locations
 %initial-action
 {
-    @$.begin.filename = @$.end.filename = &driver.filename;
+    @$.begin.filename = @$.end.filename = &driver._file_name;
 }
 
 %define parse.trace
@@ -30,7 +30,7 @@ class ParsingDriver;
 #include "ParsingDriver.h"
 #include "Lexer.h"
 #undef yylex
-#define yylex driver.lexer->lex
+#define yylex driver._lexer->lex
 }
 
 %define api.token.prefix {TOK_}
@@ -101,7 +101,7 @@ compunit:       %empty
                 {
                     $$ = std::make_shared<ast::CompUnit>();
                     INFO("%s", $$->production.c_str());
-                    driver.root = $$;
+                    driver._ast_root = $$;
                 }
         |       compunit funcdef
                 {
@@ -112,6 +112,12 @@ compunit:       %empty
                 {
                     $$ = $1;
                     $$->append($2);
+                }
+        |       compunit error
+                {
+                    $$ = $1;
+                    driver.error("unexpected token at top level");
+                    YYERROR;
                 }
         ;
 
@@ -217,7 +223,8 @@ decl:           "const" "int" constdefs ";"
                 {
                     $$ = std::make_shared<ast::Decl>($2);
                     INFO("%s", $$->production.c_str());
-                    WARN("Should generate warning.");
+                    driver.warning("type specifier missing, defaults to "
+                                   "\'int\'", @2);
                 }
         ;
 
@@ -417,8 +424,7 @@ cond:           "odd" exp
                 }
         ;
 %%
-void yy::Parser::error(const location_type &l, const std::string& m)
+void yy::Parser::error(const location_type &loc, const std::string& m)
 {
-    // TODO: should use facilities in ParsingDriver.
-    std::cerr << l << ": " << m << std::endl;
+    driver.error(m, loc);
 }

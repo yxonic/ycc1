@@ -4,10 +4,10 @@ using namespace std;
 
 namespace ast {
 
-    void AST::dump(ASTDump &)
+    void AST::dump(ASTDump &) const
     {
     }
-    
+
     CompUnit::CompUnit()
     {
         production = "CompUnit -> CompUnit [Decl | FuncDef]";
@@ -46,7 +46,6 @@ namespace ast {
         components.push_back(e);
         components.push_back(el);
         production = "ConstDef -> ID [ Exp ] = Exps";
-
     }
 
     Vars::Vars()
@@ -86,7 +85,7 @@ namespace ast {
         components.push_back(b);
         production = "FuncDef -> void ID ( ) Block";
     }
-    
+
     Stmt::Stmt()
     {
         production = "Stmt -> ;";
@@ -101,13 +100,13 @@ namespace ast {
     Block::Block()
     {
         production = "Block -> { Decl | Stmt }";
-    }    
+    }
 
     AsgnStmt::AsgnStmt(shared_ptr<LVal> v, shared_ptr<Exp> e)
     {
         components.push_back(v);
         components.push_back(e);
-        production = "Stmt -> LVal = Exp"; 
+        production = "Stmt -> LVal = Exp";
     }
 
     IfStmt::IfStmt(shared_ptr<Cond> c, shared_ptr<Stmt> s1, shared_ptr<Stmt> s2)
@@ -127,7 +126,7 @@ namespace ast {
         components.push_back(s);
         production = "Stmt -> while ( Cond ) Stmt";
     }
-    
+
     Cond::Cond(shared_ptr<Cond> c) : op("!")
     {
         components.push_back(c);
@@ -153,7 +152,7 @@ namespace ast {
         components.push_back(e2);
         production = "Cond -> Exp " + op + " Exp";
     }
-    
+
     Exp::Exp(string s, shared_ptr<Exp> e) : op(s)
     {
         components.push_back(e);
@@ -166,13 +165,13 @@ namespace ast {
         else
             production = "Exp -> UnaryOp Exp";
     }
-    
+
     Exp::Exp(string s, shared_ptr<Exp> e1, shared_ptr<Exp> e2) : op(s)
     {
         production = "Exp -> Exp " + op + " Exp";
         components.push_back(e1);
         components.push_back(e2);
-    }    
+    }
 
     LVal::LVal(shared_ptr<Ident> i, shared_ptr<Exp> e)
     {
@@ -215,5 +214,5 @@ namespace ast {
         else
             return 0;
     }
-    
+
 }
