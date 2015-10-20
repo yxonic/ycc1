@@ -1,3 +1,5 @@
+// -*- mode: c++ -*-
+
 #pragma once
 
 #ifndef NDEBUG

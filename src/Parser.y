@@ -19,7 +19,7 @@ class ParsingDriver;
 %locations
 %initial-action
 {
-    @$.begin.filename = @$.end.filename = &driver.filename;
+    @$.begin.filename = @$.end.filename = &driver._file_name;
 }
 
 %define parse.trace
@@ -30,7 +30,7 @@ class ParsingDriver;
 #include "ParsingDriver.h"
 #include "Lexer.h"
 #undef yylex
-#define yylex driver.lexer->lex
+#define yylex driver._lexer->lex
 }
 
 %define api.token.prefix {TOK_}
@@ -101,7 +101,7 @@ compunit:       %empty
                 {
                     $$ = std::make_shared<ast::CompUnit>();
                     INFO("%s", $$->production.c_str());
-                    driver.root = $$;
+                    driver._ast_root = $$;
                 }
         |       compunit funcdef
                 {
@@ -419,6 +419,5 @@ cond:           "odd" exp
 %%
 void yy::Parser::error(const location_type &l, const std::string& m)
 {
-    // TODO: should use facilities in ParsingDriver.
-    std::cerr << l << ": " << m << std::endl;
+    driver.error(m);
 }

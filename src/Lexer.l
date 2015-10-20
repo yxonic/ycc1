@@ -40,7 +40,7 @@ number          {digit}+|0x({digit}|[a-fA-F])+
   // number from 1.
   loc.step();
 %}
-                        
+
 {ws}            { /* throw away whitespace */ }
 
 <INITIAL>{
