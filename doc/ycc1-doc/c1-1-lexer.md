@@ -1,14 +1,13 @@
-Lexical Analyzer
-================
+1. Lexical Analyzer
+===================
 
 ## Basic Ideas
 
->As the first phase of a compiler, the main task of the lexical
->analyzer is to read the input characters of the source program, group
->them into lexemes, and produce as output a sequence of tokens for
->each lexeme in the source program.
->
->*Compilers: Principles, Techniques and Tools*
+> As the first phase of a compiler, the main task of the lexical
+> analyzer is to read the input characters of the source program,
+> group them into lexemes, and produce as output a sequence of tokens
+> for each lexeme in the source program. ---Compilers: Principles,
+> Techniques and Tools
 
 Here are some basic terms in lexical analysis to know first: *tokens*,
 *patterns*, and *lexemes*. A *token* is a pair consisting of a token

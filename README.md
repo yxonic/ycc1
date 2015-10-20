@@ -1,5 +1,6 @@
 ycc1: A Simple Compiler for the C1 Programming Language
 =====
+@mainpage
 
 This project is for the course: Compilers (Fall, 2015). It implements
 a rather plain compiler for a made-up language C1, which is a tiny
@@ -13,7 +14,7 @@ progress here.
 |Component      |Status  |
 |---------------|-------:|
 |Scanning       |Finished|
-|Parsing        |N/A     |
+|Parsing        |Coding  |
 |Type Checking  |N/A     |
 |Code Generation|N/A     |
 
@@ -35,17 +36,15 @@ Then you can find an executable at `bin/` named `ycc1`.
 
 ycc1 follows GCC's convention. You can use it as follows:
 
-```
-usage: ycc1 [-h] [-d] [-o file] source
+    usage: ycc1 [-h] [-d] [-o file] source
 
-positional arguments:
-  source             source file to compile
+    positional arguments:
+      source             source file to compile
 
-optional arguments:
-  -h, --help         show this help message and exit
-  -d, --debug        print debug messages
-  -o file            target path for the compiled code
-```
+    optional arguments:
+      -h, --help         show this help message and exit
+      -d, --debug        print debug messages
+      -o file            target path for the compiled code
 
 Feel free to torture this compiler with all kinds of odd input. Bug
 reports are welcome.
@@ -73,6 +72,8 @@ variable to disable it.
 ## Documentation
 
 Implementation details are described in the documentation under `doc/`
-directory. There are also sufficient comments in the source
+directory. You can also generate full document using doxygen, by just
+typing `make doc`. There are also sufficient comments in the source
 code. However, if you find any point that is not clear enough, please
 tell me and I will try to write more about it.
+

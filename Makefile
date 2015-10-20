@@ -10,11 +10,17 @@ all: pre-build
 pre-build:
 	@mkdir -p dist
 
-.PHONY: test clean
+.PHONY: test doc clean
 test: test_parser test_kaleidoscope
+
+doc:
+	@echo 'Generating document using doxygen...'
+	@cd Doxygen; doxygen 2>/dev/null
+	@echo 'Finished. Check Doxygen/html/index.html'
 
 clean:
 	-rm -rf dist
+	-rm -rf Doxygen
 	-rm -f *.png
 
 test_kaleidoscope: pre-build

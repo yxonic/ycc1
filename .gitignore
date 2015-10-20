@@ -14,3 +14,6 @@ bin/
 # build files
 dist/
 CMakeFiles/
+
+# Auto-generated document
+Doxygen/html/

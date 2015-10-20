@@ -31,7 +31,7 @@ void ParsingDriver::initializeParser()
 
 void ParsingDriver::parse()
 {
-    // TODO: Add error handling.
+    /// \todo Add error handling.
     _parser->parse();
 }
 
