@@ -2,11 +2,15 @@ const a = 1;
 void func()
 {
 testaverylooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongline;
-a+b c;
+a++b* c;
+a b;
 func(;
 }
+
 void main()
 {
 func);
 }
 another kind of error
+void func2()
+{

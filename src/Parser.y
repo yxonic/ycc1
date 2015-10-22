@@ -36,6 +36,7 @@ class ParsingDriver;
 %define api.token.prefix {TOK_}
 
 %token                  END 0           "end of file"
+                        EOL             "\n"
                         ASSIGN          "="
                         PLUS            "+"
                         MINUS           "-"
@@ -117,7 +118,7 @@ compunit:       %empty
                 {
                     $$ = $1;
                     driver.error("unexpected token at top level");
-                    YYERROR;
+                    YYERROR;    // force to quit
                 }
         ;
 
@@ -131,6 +132,9 @@ funcdef:        "void" ID "(" ")" block
 
 stmt:           matched
         |       unmatched
+        |       error ";"
+                {
+                }
         ;
 
 matched:        "if" "(" cond ")" matched "else" matched
@@ -179,10 +183,6 @@ otherstmt:      lval "=" exp ";"
         |       block
                 {
                     $$ = $1;
-                }
-        |       error ";"
-                {
-                    $$ = std::make_shared<ast::Stmt>();
                 }
         ;
 
@@ -319,7 +319,7 @@ exp:            NUMBER
                     $$ = std::make_shared<ast::Exp>("V", $1);
                     logger.debug << $$->production;
                 }
-        |       "-"exp %prec UNARY
+        |       "-" exp %prec UNARY
                 {
                     $$ = std::make_shared<ast::Exp>("N", $2);
                     logger.debug << $$->production;
