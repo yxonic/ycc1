@@ -1,5 +1,5 @@
-export CC=clang
-export CXX=clang++
+export CC=clang-3.6
+export CXX=clang++-3.6
 
 all: pre-build
 	@echo 'Building with CMake...'
@@ -20,7 +20,6 @@ doc:
 
 clean:
 	-rm -rf dist
-	-rm -rf Doxygen
 	-rm -f *.png
 
 test_kaleidoscope: pre-build
