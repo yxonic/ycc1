@@ -15,7 +15,8 @@ test: test_parser test_kaleidoscope
 
 doc:
 	@echo 'Generating document using doxygen...'
-	@cd Doxygen; doxygen 2>/dev/null
+	@mkdir -p Doxygen
+	@cd Doxygen; doxygen ../Doxyfile
 	@echo 'Finished. Check Doxygen/html/index.html'
 
 clean:
