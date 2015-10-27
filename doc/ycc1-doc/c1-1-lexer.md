@@ -1,14 +1,13 @@
-Lexical Analyzer
-================
+1. Lexical Analyzer
+===================
 
 ## Basic Ideas
 
->As the first phase of a compiler, the main task of the lexical
->analyzer is to read the input characters of the source program, group
->them into lexemes, and produce as output a sequence of tokens for
->each lexeme in the source program.
->
->*Compilers: Principles, Techniques and Tools*
+> As the first phase of a compiler, the main task of the lexical
+> analyzer is to read the input characters of the source program,
+> group them into lexemes, and produce as output a sequence of tokens
+> for each lexeme in the source program. ---Compilers: Principles,
+> Techniques and Tools
 
 Here are some basic terms in lexical analysis to know first: *tokens*,
 *patterns*, and *lexemes*. A *token* is a pair consisting of a token
@@ -38,11 +37,8 @@ more detailed usage of `flex`, refer to section *Using flex*.
 
 Besides, we also want to know how computers actually match strings
 according to regular expressions. And the solution is to convert
-regular expressions to finite automatons.
-
-## Finite Automata
-
-**TODO: Finish this part later.**
+regular expressions to finite automatons, which is fully described in
+the textbook.
 
 ## Using `flex`
 
@@ -98,3 +94,11 @@ Here is one way which allows you to track line information:
      \n        yylineno++;
      }
 
+Though lexical analysis is performed before parsing, in many
+tutorials, the order is different, where parser written in `bison` is
+taught first, then `flex`. That's because what the lexer do is merely
+providing tokens to the parser, therefore we need to know in what ways
+the parser will ask for tokens. By now, we can't write a lexer for
+later use, but can only write rules and see whether it correctly lexed
+the tokens. More details will be described in the next section about
+parser.

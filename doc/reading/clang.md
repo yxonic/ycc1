@@ -7,11 +7,9 @@ look at how to use it first.
 
 # Usage
 
->`clang` is a C, C++, and Objective-C compiler which encompasses
->preprocessing, parsing, optimization, code generation, assembly, and
->linking.
->
-> *clang MAN page*
+> `clang` is a C, C++, and Objective-C compiler which encompasses
+> preprocessing, parsing, optimization, code generation, assembly, and
+> linking. ---clang MAN page
 
 Let's use C for example. Though we can compile a C program by just one
 line, actually there are at least five steps: preprocessing (turn ".c"
@@ -71,7 +69,7 @@ Though LLVM website provides a full doxygen-generated document,
 understanding how doxygen work and generate the document by hand is
 still helpful.
 
-TODO: Add description on Doxygen.
+@todo Add description on Doxygen.
 
 To simplify the process of configuring and generating documents,
 doxygen even provides a GUI tool called DoxyWizard, which is really
@@ -163,4 +161,4 @@ other stuff.
 
 # The Parsing Library
 
-[TODO]
+@todo Later work
