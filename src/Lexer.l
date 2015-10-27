@@ -25,16 +25,14 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 %x IN_LINECOMMENT
 
 %{
-  // Code run each time a pattern is matched, which advances the
-  // position.
-  # define YY_USER_ACTION loc.columns(yyleng);
+  // Code run each time a pattern is matched.
+  #define YY_USER_ACTION loc.columns(yyleng);
 %}
 
 %%
 
 %{
-  // Code run each time yylex is called, which starts counting line
-  // number from 1.
+  // Code run each time yylex is called
   loc.step();
 %}
 
@@ -47,17 +45,28 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 <IN_COMMENT>{
 "*/"            BEGIN(INITIAL);
 [^*\n]+         // eat comment in chunks
-"\n"            loc.lines(YYLeng()); loc.step(); marker = yyin->tellg();
+"\n"            {
+                    loc.lines(YYLeng());
+                    loc.step();
+                    markers.push_back(yyin->tellg());
+                }
 "*"             // eat the lone star
 }
 <IN_LINECOMMENT>{
 "\n"            {
-loc.lines(YYLeng()); loc.step(); marker = yyin->tellg(); BEGIN(INITIAL);
-}
+                    loc.lines(YYLeng());
+                    loc.step();
+                    markers.push_back(yyin->tellg());
+                    BEGIN(INITIAL);
+                }
 [^\n]+          // eat comment
 }
 
-\n              loc.lines(YYLeng()); loc.step(); marker = yyin->tellg();
+\n              {
+                    loc.lines(YYLeng());
+                    loc.step();
+                    markers.push_back(yyin->tellg());
+                }
 "+"             return yy::Parser::make_PLUS(loc);
 "-"             return yy::Parser::make_MINUS(loc);
 "*"             return yy::Parser::make_STAR(loc);

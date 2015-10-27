@@ -13,6 +13,7 @@
 #include <FlexLexer.h>
 #endif
 
+#include <vector>
 #include "Parser.tab.hh"
 
 namespace yy {
@@ -23,10 +24,10 @@ namespace yy {
     {
     public:
         Lexer(std::istream *in = 0, std::ostream *out = 0)
-            : BaseFlexLexer(in, out) { }
+            : BaseFlexLexer(in, out), markers { in->tellg() } { }
         virtual ~Lexer() { }
         virtual Parser::symbol_type lex(ParsingDriver &);
         yy::location loc;
-        std::stringstream::pos_type marker;
+        std::vector<std::stringstream::pos_type> markers;
     };
 }

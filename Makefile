@@ -37,13 +37,13 @@ test_parser: pre-build
 	@cd dist; cmake ../; make -s test_parser
 	@echo
 	@tput setaf 3; echo '* Run dist/test_parser'; tput sgr0
-	dist/test_parser dist/examples/example0.c1
+	dist/test_parser -d dist/examples/example0.c1
 	@echo
-	dist/test_parser dist/examples/example1.c1
+	dist/test_parser -d dist/examples/example1.c1
 	@echo
-	dist/test_parser dist/examples/example2.c1
+	dist/test_parser -d dist/examples/example2.c1
 	@echo
-	dist/test_parser dist/examples/example3.c1
+	dist/test_parser -d dist/examples/example3.c1
 	@echo
 	dist/test_parser dist/examples/example4.c1
 

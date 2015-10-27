@@ -4,7 +4,6 @@
 %define parser_class_name {Parser}
 %define api.token.constructor
 %define api.value.type variant
-%define parse.assert
 %code requires
 {
 #include <iostream>
@@ -22,7 +21,6 @@ class ParsingDriver;
     @$.begin.filename = @$.end.filename = &driver._file_name;
 }
 
-%define parse.trace
 %define parse.error verbose
 
 %code
@@ -72,6 +70,7 @@ class ParsingDriver;
 %token  <std::string> ID
 %token  <int> NUMBER
 
+%right "if" "(" ")" "else"
 %left "and"
 %left "or"
 %left "+" "-"
@@ -82,8 +81,6 @@ class ParsingDriver;
 %type   <std::shared_ptr<ast::LVal>> lval
 %type   <std::shared_ptr<ast::Cond>> cond
 %type   <std::shared_ptr<ast::Stmt>> stmt
-%type   <std::shared_ptr<ast::Stmt>> matched
-%type   <std::shared_ptr<ast::Stmt>> unmatched
 %type   <std::shared_ptr<ast::Stmt>> otherstmt
 %type   <std::shared_ptr<ast::Block>> block
 %type   <std::shared_ptr<ast::Block>> blockitem
@@ -114,12 +111,6 @@ compunit:       %empty
                     $$ = $1;
                     $$->append($2);
                 }
-        |       compunit error
-                {
-                    $$ = $1;
-                    driver.error("unexpected token at top level");
-                    YYERROR;    // force to quit
-                }
         ;
 
 funcdef:        "void" ID "(" ")" block
@@ -130,43 +121,58 @@ funcdef:        "void" ID "(" ")" block
                 }
         ;
 
-stmt:           matched
-        |       unmatched
-        |       error ";"
-                {
-                }
-        ;
-
-matched:        "if" "(" cond ")" matched "else" matched
+stmt:           "if" "(" cond ")" stmt "else" stmt
                 {
                     $$ = std::make_shared<ast::IfStmt>($3, $5, $7);
                     logger.debug << $$->production;
+                }
+        |       "if" "(" cond ")" stmt
+                {
+                    $$ = std::make_shared<ast::IfStmt>($3, $5);
+                    logger.debug << $$->production;
+                }
+        |       "if" "(" cond stmt "else" stmt
+                {
+                    driver.error("unmatched ( in if-statement", @2);
+                }
+        |       "if" cond ")" stmt "else" stmt
+                {
+                    driver.error("unmatched ) in if-statement", @3);
+                }
+        |       "if" "(" cond stmt
+                {
+                    driver.error("unmatched ( in if-statement", @2);
+                }
+        |       "if" cond ")" stmt
+                {
+                    driver.error("unmatched ) in if-statement", @3);
+                }
+        |       "while" "(" cond ")" stmt
+                {
+                    $$ = std::make_shared<ast::WhileStmt>($3, $5);
+                    logger.debug << $$->production;
+                }
+        |       "while" "(" cond stmt
+                {
+                    driver.error("unmatched ( in while-statement", @2);
+                }
+        |       "while" cond ")" stmt
+                {
+                    driver.error("unmatched ) in while-statement", @3);
+                }
+        |       block
+                {
+                    $$ = $1;
                 }
         |       otherstmt
                 {
                     $$ = $1;
                 }
         ;
-unmatched:      "if" "(" cond ")" stmt
-                {
-                    $$ = std::make_shared<ast::IfStmt>($3, $5);
-                    logger.debug << $$->production;
-                }
-        |       "if" "(" cond ")" matched "else" unmatched
-                {
-                    $$ = std::make_shared<ast::IfStmt>($3, $5, $7);
-                    logger.debug << $$->production;
-                }
-        ;
 
 otherstmt:      lval "=" exp ";"
                 {
                     $$ = std::make_shared<ast::AsgnStmt>($1, $3);
-                    logger.debug << $$->production;
-                }
-        |       "while" "(" cond ")" otherstmt
-                {
-                    $$ = std::make_shared<ast::WhileStmt>($3, $5);
                     logger.debug << $$->production;
                 }
         |       ";"
@@ -180,15 +186,19 @@ otherstmt:      lval "=" exp ";"
                         std::make_shared<ast::Ident>($1));
                     logger.debug << $$->production;
                 }
-        |       block
+        |       error ";"
                 {
-                    $$ = $1;
+                    yyerrok;
                 }
         ;
 
 block:          "{" blockitem "}"
                 {
                     $$ = $2;
+                }
+        |       error "}"
+                {
+                    yyerrok;
                 }
         ;
 
@@ -225,6 +235,14 @@ decl:           "const" "int" constdefs ";"
                     logger.debug << $$->production;
                     driver.warning("type specifier missing, defaults to "
                                    "\'int\'", @2);
+                }
+        |       "const" error ";"
+                {
+                    yyerrok;
+                }
+        |       "int" error ";"
+                {
+                    yyerrok;
                 }
         ;
 
@@ -341,8 +359,6 @@ exp:            NUMBER
                 }
         |       exp "/" exp
                 {
-                    if ($3 == 0)
-                        logger.error << "Can't be devided by zero.";
                     $$ = std::make_shared<ast::Exp>("/", $1, $3);
                     logger.debug << $$->production;
                 }
@@ -381,6 +397,10 @@ cond:           "odd" exp
                 {
                     $$ = std::make_shared<ast::Cond>($2);
                     logger.debug << $$->production;
+                }
+        |       "(" cond ")"
+                {
+                    $$ = $2;
                 }
         |       cond "and" cond
                 {

@@ -65,7 +65,7 @@ void ParsingDriver::error(string err, const yy::location &loc,
 
     // record current position in stream
     auto cur = _in_stream.tellg();
-    _in_stream.seekg(_lexer->marker);
+    _in_stream.seekg(_lexer->markers[loc.end.line - 1]);
     getline(_in_stream, line);
     // recover stream
     _in_stream.seekg(cur);
@@ -83,19 +83,20 @@ void ParsingDriver::error(string err, const yy::location &loc,
         --end_col;
 
     string indicator;
-    if (beg_line != end_line || beg_col == end_col)
-        indicator = string(end_col, ' ') + "\033[32;1m^\033[0m";
+    if (beg_line != end_line || beg_col >= end_col)
+        indicator = string(end_col, ' ') + "^";
     else
-        indicator = string(beg_col, ' ') + "\033[32;1m^" +
-            string(end_col - beg_col, '~') + "\033[0m";
+        indicator = string(beg_col, ' ') + " ^" +
+            string(end_col - beg_col - 1, '~');
 
-    err_text << fit_text(to_string(end_line) + ":" +
+    err_text << fit_text(file_name, w1) << " ! "
+             << fit_text(err, w2, true) << "\n"
+             << fit_text(to_string(end_line) + ":" +
                          to_string(end_col), w1)
              << " | " << fit_text(line, w2, true) << "\n"
-             << err_color << fit_text(err_type, w1) << "\033[0m !"
-             << fit_text(indicator, w2 + 1, true)
-             << "\n" << fit_text(file_name, w1) << " ! "
-             << fit_text(err, w2, true);
+             << err_color << fit_text(err_type, w1)
+             << "\033[0m !\033[32;1m"
+             << fit_text(indicator, w2 + 1, true) << "\033[0m";
 
     cerr << err_text.str() << endl;
 }
