@@ -135,17 +135,9 @@ stmt:           "if" "(" cond ")" stmt "else" stmt
                 {
                     driver.error("unmatched ( in if-statement", @2);
                 }
-        |       "if" cond ")" stmt "else" stmt
-                {
-                    driver.error("unmatched ) in if-statement", @3);
-                }
         |       "if" "(" cond stmt
                 {
                     driver.error("unmatched ( in if-statement", @2);
-                }
-        |       "if" cond ")" stmt
-                {
-                    driver.error("unmatched ) in if-statement", @3);
                 }
         |       "while" "(" cond ")" stmt
                 {
@@ -155,10 +147,6 @@ stmt:           "if" "(" cond ")" stmt "else" stmt
         |       "while" "(" cond stmt
                 {
                     driver.error("unmatched ( in while-statement", @2);
-                }
-        |       "while" cond ")" stmt
-                {
-                    driver.error("unmatched ) in while-statement", @3);
                 }
         |       block
                 {

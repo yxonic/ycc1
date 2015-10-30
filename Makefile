@@ -46,6 +46,8 @@ test_parser: pre-build
 	dist/test_parser -d dist/examples/example3.c1
 	@echo
 	dist/test_parser dist/examples/example4.c1
+	@echo
+	dist/test_parser dist/examples/example5.c1
 
 test_utils: pre-build
 	@cd dist; cmake ../; make -s test_utils

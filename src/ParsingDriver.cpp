@@ -86,8 +86,8 @@ void ParsingDriver::error(string err, const yy::location &loc,
     if (beg_line != end_line || beg_col >= end_col)
         indicator = string(end_col, ' ') + "^";
     else
-        indicator = string(beg_col, ' ') + " ^" +
-            string(end_col - beg_col - 1, '~');
+        indicator = string(beg_col, ' ') + "^" +
+            string(end_col - beg_col, '~');
 
     err_text << fit_text(file_name, w1) << " ! "
              << fit_text(err, w2, true) << "\n"
