@@ -1,17 +1,22 @@
 #include <iostream>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include "ParsingDriver.h"
 #include "Utils.h"
 
 using namespace std;
 
+constexpr int BUFSIZE = 4096 * 1024;
+char buf[BUFSIZE];
+
 ParsingDriver::ParsingDriver(string s)
     : _file_name(s)
 {
-    std::ifstream fin(s);
-    _in_stream << fin.rdbuf();
+    FILE *fp = popen(("/usr/bin/expand " + s).c_str(),"r");
+    fread(buf, sizeof(char), BUFSIZE, fp);
+    _in_stream << buf;
 
     initializeLexer();
     initializeParser();
