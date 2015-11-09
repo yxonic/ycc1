@@ -49,6 +49,20 @@ test_parser: pre-build
 	@echo
 	dist/test_parser dist/examples/example5.c1
 
+test_dumpdot: pre-build
+	@cd dist; cmake ../; make -s test_dumpdot
+	@echo
+	@tput setaf 3; echo '* Run dist/test_parser'; tput sgr0
+	dist/test_dumpdot dist/examples/example0.c1 > ast0.dot
+	dot -Tpng -o ast0.png ast0.dot
+	dist/test_dumpdot dist/examples/example1.c1 > ast1.dot
+	dot -Tpng -o ast1.png ast1.dot
+	dist/test_dumpdot dist/examples/example2.c1 > ast2.dot
+	dot -Tpng -o ast2.png ast2.dot
+	dist/test_dumpdot dist/examples/example3.c1 > ast3.dot
+	dot -Tpng -o ast3.png ast3.dot
+	-rm -f *.dot
+
 test_utils: pre-build
 	@cd dist; cmake ../; make -s test_utils
 	@echo
@@ -72,4 +86,8 @@ P3: test_kaleidoscope
 P4: test_parser
 	@echo
 	@tput setaf 3; echo '* Check doc/P4.md for answers.'; tput sgr0
+
+P5: test_dumpdot
+	@echo
+	@tput setaf 3; echo '* Check doc/P5.md for answers.'; tput sgr0
 

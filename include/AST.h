@@ -18,7 +18,7 @@ namespace ast {
         AST() = default;
 
         /// Dump AST structure using a dumper.
-        virtual void dump(ASTDump &dumper) const;
+        virtual int dump(ASTDump &dumper) const;
 
         /// Production rule that generates this node.
         std::string production;
@@ -150,14 +150,18 @@ namespace ast {
     class Ident : public Exp {
     public:
         std::string name;
-        Ident(std::string n) : name(n) { }
+        Ident(std::string n) : name(n) {
+            production = n;
+        }
         int calc() override { return 0; }
     };
 
     class Number : public Exp {
     public:
         int value;
-        Number(int n) : value(n) { }
+        Number(int n) : value(n) {
+            production = std::to_string(n);
+        }
         int calc() override { return value; }
     };
 

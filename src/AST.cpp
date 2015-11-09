@@ -4,8 +4,15 @@ using namespace std;
 
 namespace ast {
 
-    void AST::dump(ASTDump &) const
+    int AST::dump(ASTDump &dumper) const
     {
+        int s = dumper.newNode(production);
+        vector<int> childs;
+        for (auto c : components)
+            childs.push_back(c->dump(dumper));
+        for (int t : childs)
+            dumper.drawLine(s, t);
+        return s;
     }
 
     CompUnit::CompUnit()
@@ -39,7 +46,8 @@ namespace ast {
         production = "ConstDef -> ID = Exp";
     }
 
-    ConstDef::ConstDef(shared_ptr<Ident> id, shared_ptr<Exp> e, shared_ptr<Exps> el)
+    ConstDef::ConstDef(shared_ptr<Ident> id, shared_ptr<Exp> e,
+                       shared_ptr<Exps> el)
     {
         is_array = true;
         components.push_back(id);
@@ -109,7 +117,8 @@ namespace ast {
         production = "Stmt -> LVal = Exp";
     }
 
-    IfStmt::IfStmt(shared_ptr<Cond> c, shared_ptr<Stmt> s1, shared_ptr<Stmt> s2)
+    IfStmt::IfStmt(shared_ptr<Cond> c, shared_ptr<Stmt> s1,
+                   shared_ptr<Stmt> s2)
     {
         components.push_back(c);
         components.push_back(s1);

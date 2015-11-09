@@ -19,14 +19,21 @@ add_executable(kaleidoscope src/kaleidoscope.cpp src/dumpdot.cpp)
 llvm_map_components_to_libnames(llvm_libs core mcjit native)
 target_link_libraries(kaleidoscope ${llvm_libs})
 
-# Build test_parser
+# flex and bison
 find_package(FLEX REQUIRED)
 flex_target(Lexer src/Lexer.l ${CMAKE_CURRENT_BINARY_DIR}/Lexer.yy.cc)
 find_package(BISON REQUIRED)
 bison_target(Parser src/Parser.y ${CMAKE_CURRENT_BINARY_DIR}/Parser.tab.cc)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+# Build test_parser
 add_executable(test_parser test/test_parser.cpp
   src/ParsingDriver.cpp src/AST.cpp src/Utils.cpp
+  ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
+
+# Build test_dumpdot
+add_executable(test_dumpdot test/test_dumpdot.cpp
+  src/ParsingDriver.cpp src/AST.cpp src/ASTDump.cpp src/Utils.cpp
   ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
 
 # Install examples
