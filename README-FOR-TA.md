@@ -56,3 +56,23 @@ P3要求的工作的编译、测试，可以通过以下命令进行。
 
 有关tutorial的学习笔记在`doc/kaleidoscope.md`中。3.1中问题则在
 `doc/P3.md`中回答。
+
+# P4
+
+P4要求的工作的编译、测试，可以通过以下命令进行。
+
+    make P4
+
+测试用输入文件保存于`test/examples/`。
+
+问题在`doc/P4.md`中回答。代码文档请使用`make doc`产生。
+
+# P5
+
+P5要求的工作的编译、测试，可以通过以下命令进行。
+
+    make P5
+
+测试用输入文件保存于`test/examples/`。
+
+问题在`doc/P5.md`中回答。代码文档请使用`make doc`产生。

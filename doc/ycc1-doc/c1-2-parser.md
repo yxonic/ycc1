@@ -1,10 +1,12 @@
-2. Parser
+2 Parser
 =========
 
 The parser may be the most important part of the front-end of a
 compiler. Common practice is to write a parser by hand, but for
 simplicity, here we can use `bison` to generate an efficient yet
 powerful LALR parser.
+
+## The `bison` interface
 
 First, let's take a look at bison's C interface. After we write all
 the rules in a `.y` file, we can generate a `.c` program by invoking
@@ -36,6 +38,8 @@ next token remains `yylex`. However, we redefine it as
 `Lexer::lex()`. In addition, everything generated are placed in
 namespace yy, which makes the whole place much cleaner.
 
+## The grammar
+
 After we make this clear, we may take a deeper look at the grammar
 rules. The rules are basically the same as design, with a few changes
 made to satisfy the LALR parse table generater.
@@ -52,6 +56,8 @@ same but it is right-associative, this token is shifted, and vice
 versa. By this rule, we define precedence and associativity for
 operators, and define precedence for `if`, parentheses, and
 `else`. This help us get rid of all the shift/reduce conflicts.
+
+## Error reporting / recovery
 
 We also want the parser report parsing errors more precisely, and not
 to report one at a time. Perfect error handling is rather difficult
@@ -95,3 +101,21 @@ take great pains to fix the grammar, but only to add a program unit.
 Studying some better error handling machanisms, such as that from
 `clang` project, is indeed helpful. But before that, we just take this
 plain solution and go on.
+
+# Generate AST
+
+During parsing, we also need to store all the information of those
+grammar units as a tree structure, which we refer to as AST.
+
+As a tree data structure, we need to define a node (a base class with
+several subclasses), store its children's links, and dynamically
+generate and destroy those nodes properly. Here we use the convenient
+facility provided by C++11: the `shared_ptr`, which provides a simple
+yet powerful ref-count garbage collecting pattern. 
+
+All these are just trivial. To visualize the result, we can draw the
+tree out using graphviz. Here we implemented a builder pattern and an
+abstract factory pattern, with which we can abstract the visualizing
+process into two simple methods, and be able to write different
+visualizers without changing the main code.
+

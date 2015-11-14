@@ -1,4 +1,4 @@
-1. Lexical Analyzer
+1 Lexical Analyzer
 ===================
 
 ## Basic Ideas
