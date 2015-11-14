@@ -1,4 +1,5 @@
 #include "AST.h"
+#include <sstream>
 
 using namespace std;
 
@@ -6,7 +7,9 @@ namespace ast {
 
     int AST::dump(ASTDump &dumper) const
     {
-        int s = dumper.newNode(production);
+        ostringstream os;
+        os << production << " (" << loc << ")";
+        int s = dumper.newNode(os.str());
         vector<int> childs;
         for (auto c : components)
             childs.push_back(c->dump(dumper));

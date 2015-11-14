@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 
+#include "location.hh"
 #include "Utils.h"
 #include "ASTDump.h"
 
@@ -22,6 +23,9 @@ namespace ast {
 
         /// Production rule that generates this node.
         std::string production;
+
+        /// Position information of the unit.
+        yy::location loc;
 
         /// Components (childs) of this node.
         std::vector<std::shared_ptr<AST>> components;

@@ -98,17 +98,20 @@ class ParsingDriver;
 compunit:       %empty
                 {
                     $$ = std::make_shared<ast::CompUnit>();
+                    $$->loc = @$;
                     logger.debug << $$->production;
                     driver._ast_root = $$;
                 }
         |       compunit funcdef
                 {
                     $$ = $1;
+                    $$->loc = @$;
                     $$->append($2);
                 }
         |       compunit decl
                 {
                     $$ = $1;
+                    $$->loc = @$;
                     $$->append($2);
                 }
         ;
@@ -117,6 +120,7 @@ funcdef:        "void" ID "(" ")" block
                 {
                     $$ = std::make_shared<ast::FuncDef>(
                         std::make_shared<ast::Ident>($2), $5);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         ;
@@ -124,11 +128,13 @@ funcdef:        "void" ID "(" ")" block
 stmt:           "if" "(" cond ")" stmt "else" stmt
                 {
                     $$ = std::make_shared<ast::IfStmt>($3, $5, $7);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       "if" "(" cond ")" stmt
                 {
                     $$ = std::make_shared<ast::IfStmt>($3, $5);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       "if" "(" cond stmt "else" stmt
@@ -142,6 +148,7 @@ stmt:           "if" "(" cond ")" stmt "else" stmt
         |       "while" "(" cond ")" stmt
                 {
                     $$ = std::make_shared<ast::WhileStmt>($3, $5);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       "while" "(" cond stmt
@@ -151,27 +158,32 @@ stmt:           "if" "(" cond ")" stmt "else" stmt
         |       block
                 {
                     $$ = $1;
+                    $$->loc = @$;
                 }
         |       otherstmt
                 {
                     $$ = $1;
+                    $$->loc = @$;
                 }
         ;
 
 otherstmt:      lval "=" exp ";"
                 {
                     $$ = std::make_shared<ast::AsgnStmt>($1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       ";"
                 {
                     $$ = std::make_shared<ast::Stmt>();
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       ID "(" ")" ";"
                 {
                     $$ = std::make_shared<ast::FuncCall>(
                         std::make_shared<ast::Ident>($1));
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       error ";"
@@ -183,6 +195,7 @@ otherstmt:      lval "=" exp ";"
 block:          "{" blockitem "}"
                 {
                     $$ = $2;
+                    $$->loc = @$;
                 }
         |       error "}"
                 {
@@ -193,16 +206,19 @@ block:          "{" blockitem "}"
 blockitem:      %empty
                 {
                     $$ = std::make_shared<ast::Block>();
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       blockitem stmt
                 {
                     $$ = $1;
+                    $$->loc = @$;
                     $$->append($2);
                 }
         |       blockitem decl
                 {
                     $$ = $1;
+                    $$->loc = @$;
                     $$->append($2);
                 }
         ;
@@ -210,16 +226,19 @@ blockitem:      %empty
 decl:           "const" "int" constdefs ";"
                 {
                     $$ = std::make_shared<ast::Decl>($3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       "int" vars ";"
                 {
                     $$ = std::make_shared<ast::Decl>($2);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       "const" constdefs ";"
                 {
                     $$ = std::make_shared<ast::Decl>($2);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                     driver.warning("type specifier missing, defaults to "
                                    "\'int\'", @2);
@@ -237,12 +256,14 @@ decl:           "const" "int" constdefs ";"
 constdefs:      constdef
                 {
                     $$ = std::make_shared<ast::ConstDefs>();
+                    $$->loc = @$;
                     logger.debug << $$->production;
                     $$->append($1);
                 }
         |       constdefs "," constdef
                 {
                     $$ = $1;
+                    $$->loc = @$;
                     $$->append($3);
                 }
         ;
@@ -251,6 +272,7 @@ constdef:       ID "=" exp
                 {
                     $$ = std::make_shared<ast::ConstDef>(
                         std::make_shared<ast::Ident>($1), $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       ID "[" exp "]" "=" "{" exps "}"
@@ -264,12 +286,14 @@ constdef:       ID "=" exp
 vars:           var
                 {
                     $$ = std::make_shared<ast::Vars>();
+                    $$->loc = @$;
                     logger.debug << $$->production;
                     $$->append($1);
                 }
         |       vars "," var
                 {
                     $$ = $1;
+                    $$->loc = @$;
                     $$->append($3);
                 }
         ;
@@ -278,12 +302,14 @@ var:            ID
                 {
                     $$ = std::make_shared<ast::Var>(
                         std::make_shared<ast::Ident>($1));
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       ID "[" exp "]"
                 {
                     $$ = std::make_shared<ast::Var>(
                         std::make_shared<ast::Ident>($1), $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       ID "=" exp
@@ -291,12 +317,14 @@ var:            ID
                     // with initialization
                     $$ = std::make_shared<ast::Var>(
                         std::make_shared<ast::Ident>($1), $3, true);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       ID "[" exp "]" "=" "{" exps "}"
                 {
                     $$ = std::make_shared<ast::Var>
                         (std::make_shared<ast::Ident>($1), $3, $7);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         ;
@@ -304,12 +332,14 @@ var:            ID
 exps:           exp
                 {
                     $$ = std::make_shared<ast::Exps>();
+                    $$->loc = @$;
                     logger.debug << $$->production;
                     $$->append($1);
                 }
         |       exps "," exp
                 {
                     $$ = $1;
+                    $$->loc = @$;
                     $$->append($3);
                 }
         ;
@@ -318,46 +348,55 @@ exp:            NUMBER
                 {
                     $$ = std::make_shared<ast::Exp>(
                         "Num", std::make_shared<ast::Number>($1));
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       lval
                 {
                     $$ = std::make_shared<ast::Exp>("V", $1);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       "-" exp %prec UNARY
                 {
                     $$ = std::make_shared<ast::Exp>("N", $2);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp "+" exp
                 {
                     $$ = std::make_shared<ast::Exp>("+", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp "-" exp
                 {
                     $$ = std::make_shared<ast::Exp>("-", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp "*" exp
                 {
                     $$ = std::make_shared<ast::Exp>("*", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp "/" exp
                 {
                     $$ = std::make_shared<ast::Exp>("/", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp "%" exp
                 {
                     $$ = std::make_shared<ast::Exp>("%", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       "(" exp ")"
                 {
                     $$ = std::make_shared<ast::Exp>("()", $2);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         ;
@@ -366,12 +405,14 @@ lval:           ID
                 {
                     $$ = std::make_shared<ast::LVal>(
                         std::make_shared<ast::Ident>($1));
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       ID "[" exp "]"
                 {
                     $$ = std::make_shared<ast::LVal>(
                         std::make_shared<ast::Ident>($1), $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         ;
@@ -379,55 +420,66 @@ lval:           ID
 cond:           "odd" exp
                 {
                     $$ = std::make_shared<ast::Cond>("odd", $2);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       "!" cond %prec UNARY
                 {
                     $$ = std::make_shared<ast::Cond>($2);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       "(" cond ")"
                 {
                     $$ = $2;
+                    $$->loc = @$;
                 }
         |       cond "and" cond
                 {
                     $$ = std::make_shared<ast::Cond>("and", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       cond "or" cond
                 {
                     $$ = std::make_shared<ast::Cond>("or", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp "==" exp
                 {
                     $$ = std::make_shared<ast::Cond>("==", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp "!=" exp
                 {
                     $$ = std::make_shared<ast::Cond>("!=", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp "<" exp
                 {
                     $$ = std::make_shared<ast::Cond>("<", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp "<=" exp
                 {
                     $$ = std::make_shared<ast::Cond>("<=", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp ">" exp
                 {
                     $$ = std::make_shared<ast::Cond>(">", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         |       exp ">=" exp
                 {
                     $$ = std::make_shared<ast::Cond>(">=", $1, $3);
+                    $$->loc = @$;
                     logger.debug << $$->production;
                 }
         ;
