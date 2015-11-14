@@ -102,7 +102,7 @@ Studying some better error handling machanisms, such as that from
 `clang` project, is indeed helpful. But before that, we just take this
 plain solution and go on.
 
-# Generate AST
+## Generating AST
 
 During parsing, we also need to store all the information of those
 grammar units as a tree structure, which we refer to as AST.
