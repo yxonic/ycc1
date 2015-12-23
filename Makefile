@@ -11,7 +11,7 @@ pre-build:
 	@mkdir -p dist
 
 .PHONY: test doc clean
-test: test_parser test_kaleidoscope
+test: test_parser test_kaleidoscope test_ycc1
 
 doc:
 	@echo 'Generating document using doxygen...'
@@ -66,11 +66,17 @@ test_dumpdot: pre-build
 test_utils: pre-build
 	@cd dist; cmake ../; make -s test_utils
 	@echo
+	@tput setaf 3; echo '* Testing utils'; tput sgr0
 	dist/test_utils
 	@tput setaf 3; echo '* Some logged to test.log'; tput sgr0
 	cat test.log
 	rm -f test.log
 
+test_ycc1: pre-build
+	@cd dist; cmake ../; make -s ycc1
+	@echo
+	@tput setaf 3; echo '* Testing the main compiler'; tput sgr0
+	dist/ycc1 -S -emit-llvm dist/examples/cg1.c1 -o cg1.ll
 
 # Targets for TA
 P1:

@@ -6,6 +6,8 @@
 #include <vector>
 #include <memory>
 
+#include "llvm/IR/Module.h"
+
 #include "location.hh"
 #include "Utils.h"
 #include "ASTDump.h"
@@ -15,7 +17,7 @@ namespace ast {
     /// AST - Abstract class for ASTs
     class AST {
     public:
-        // Default constructor
+        /// Default constructor.
         AST() = default;
 
         /// Dump AST structure using a dumper.
@@ -23,9 +25,6 @@ namespace ast {
 
         /// Production rule that generates this node.
         std::string production;
-
-        /// Position information of the unit.
-        yy::location loc;
 
         /// Components (childs) of this node.
         std::vector<std::shared_ptr<AST>> components;
@@ -142,13 +141,10 @@ namespace ast {
 
     class Exp : public AST {
     public:
-        // "()" for paren-expr, "P" for unary plus, "N" for unary
-        // minus, "V" for LVal, and "Num" for number.
-        std::string op;
+        char op;
         Exp() = default;
-        Exp(std::string, std::shared_ptr<Exp>);
-        Exp(std::string, std::shared_ptr<Exp>, std::shared_ptr<Exp>);
-        virtual int calc();
+        Exp(char, std::shared_ptr<Exp>);
+        Exp(char, std::shared_ptr<Exp>, std::shared_ptr<Exp>);
     };
 
     class Ident : public Exp {
@@ -157,7 +153,6 @@ namespace ast {
         Ident(std::string n) : name(n) {
             production = n;
         }
-        int calc() override { return 0; }
     };
 
     class Number : public Exp {
@@ -166,14 +161,12 @@ namespace ast {
         Number(int n) : value(n) {
             production = std::to_string(n);
         }
-        int calc() override { return value; }
     };
 
     class LVal : public Exp {
     public:
         bool is_array = false;
         LVal(std::shared_ptr<Ident>, std::shared_ptr<Exp> = nullptr);
-        int calc() override { return 0; }
     };
 
     class Exps : public AST {

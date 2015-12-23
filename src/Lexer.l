@@ -7,7 +7,7 @@
 #include <sstream>
 #include "Lexer.h"
 #include "Parser.tab.hh"
-#include "ParsingDriver.h"
+#include "Driver.h"
 
 %}
 %option c++
@@ -48,7 +48,7 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 "\n"            {
                     loc.lines(YYLeng());
                     loc.step();
-                    markers.push_back(yyin->tellg());
+                    markers.push_back(yyin.tellg());
                 }
 "*"             // eat the lone star
 }
@@ -56,7 +56,7 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 "\n"            {
                     loc.lines(YYLeng());
                     loc.step();
-                    markers.push_back(yyin->tellg());
+                    markers.push_back(yyin.tellg());
                     BEGIN(INITIAL);
                 }
 [^\n]+          // eat comment
@@ -65,7 +65,7 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 \n              {
                     loc.lines(YYLeng());
                     loc.step();
-                    markers.push_back(yyin->tellg());
+                    markers.push_back(yyin.tellg());
                 }
 "+"             return yy::Parser::make_PLUS(loc);
 "-"             return yy::Parser::make_MINUS(loc);

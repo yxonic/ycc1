@@ -26,15 +26,23 @@ find_package(BISON REQUIRED)
 bison_target(Parser src/Parser.y ${CMAKE_CURRENT_BINARY_DIR}/Parser.tab.cc)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+# Build ycc1
+add_executable(ycc1 src/ycc1.cpp
+  src/Driver.cpp src/AST.cpp src/LLVMCodeGen.cpp src/Utils.cpp
+  ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
+target_link_libraries(ycc1 ${llvm_libs})
+
 # Build test_parser
 add_executable(test_parser test/test_parser.cpp
-  src/ParsingDriver.cpp src/AST.cpp src/Utils.cpp
+  src/Driver.cpp src/AST.cpp src/LLVMCodeGen.cpp src/Utils.cpp
   ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
+target_link_libraries(test_parser ${llvm_libs})
 
 # Build test_dumpdot
 add_executable(test_dumpdot test/test_dumpdot.cpp
-  src/ParsingDriver.cpp src/AST.cpp src/ASTDump.cpp src/Utils.cpp
+  src/Driver.cpp src/AST.cpp src/ASTDump.cpp src/LLVMCodeGen.cpp src/Utils.cpp
   ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
+target_link_libraries(test_dumpdot ${llvm_libs})
 
 # Install examples
 file(COPY test/examples/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/examples/)

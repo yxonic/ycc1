@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "ParsingDriver.h"
+#include "Driver.h"
 #include "Utils.h"
 using namespace std;
 
@@ -14,7 +14,7 @@ int main(int argc, char **argv)
             --argc; ++argv;
         }
     }
-    ParsingDriver pd(argv[1]);
+    Driver pd(argv[1]);
     pd.parse();
     return 0;
 }

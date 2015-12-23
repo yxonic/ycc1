@@ -1,0 +1,6 @@
+int a = 1;
+int b;
+void main()
+{
+   b = 5 * a;
+}

@@ -4,7 +4,7 @@
 // Define YY_DECL to let flex generate a proper lexing function.
 #ifndef YY_DECL
 #define	YY_DECL                                                         \
-    yy::Parser::symbol_type yy::Lexer::lex(ParsingDriver &driver)
+    yy::Parser::symbol_type yy::Lexer::lex(Driver &driver)
 #endif
 
 // Base classes: FlexLexer and BaseFlexLexer
@@ -26,7 +26,7 @@ namespace yy {
         Lexer(std::istream *in = 0, std::ostream *out = 0)
             : BaseFlexLexer(in, out), markers { in->tellg() } { }
         virtual ~Lexer() { }
-        virtual Parser::symbol_type lex(ParsingDriver &);
+        virtual Parser::symbol_type lex(Driver &);
         yy::location loc;
         std::vector<std::stringstream::pos_type> markers;
     };

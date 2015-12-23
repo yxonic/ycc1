@@ -3,16 +3,17 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "ParsingDriver.h"
+#include "Driver.h"
 #include "Utils.h"
 
 using namespace std;
+using namespace llvm;
 
 constexpr int BUFSIZE = 4096 * 1024;
 char buf[BUFSIZE];
 
-ParsingDriver::ParsingDriver(string s)
-    : _file_name(s)
+Driver::Driver(string s, Module *module)
+    : _file_name(s), _module(module)
 {
     FILE *fp = popen(("/usr/bin/expand " + s).c_str(),"r");
     fread(buf, sizeof(char), BUFSIZE, fp);
@@ -22,30 +23,40 @@ ParsingDriver::ParsingDriver(string s)
     initializeParser();
 }
 
-void ParsingDriver::initializeLexer()
+void Driver::initializeLexer()
 {
     _lexer = make_shared<yy::Lexer>(&_in_stream);
 }
 
-void ParsingDriver::initializeParser()
+void Driver::initializeParser()
 {
     // Pass reference to current object to enable the parser to access
     // source and report errors.
     _parser = make_shared<yy::Parser>(*this);
 }
 
-void ParsingDriver::parse()
+void Driver::parse()
 {
     /// \todo Add error handling.
     _parser->parse();
 }
 
-void ParsingDriver::error(string err, ErrorLevel level)
+void Driver::codegen(string output_file)
+{
+    /// \todo CodeGen to different target according to parameters.
+
+    /// Initialize CodeGen with the module and pass ownership to it.
+    _codegen.reset(new LLVMCodeGen(std::move(_module)));
+
+    _codegen->codegen(ast_root);
+}
+
+void Driver::error(string err, ErrorLevel level)
 {
     error(err, _lexer->loc, level);
 }
 
-void ParsingDriver::error(string err, const yy::location &loc,
+void Driver::error(string err, const yy::location &loc,
     ErrorLevel level)
 {
     string err_color;
@@ -106,27 +117,27 @@ void ParsingDriver::error(string err, const yy::location &loc,
     cerr << err_text.str() << endl;
 }
 
-void ParsingDriver::warning(string err)
+void Driver::warning(string err)
 {
     error(err, _lexer->loc, Warning);
 }
 
-void ParsingDriver::warning(string err, const yy::location &loc)
+void Driver::warning(string err, const yy::location &loc)
 {
     error(err, loc, Warning);
 }
 
-void ParsingDriver::info(string err)
+void Driver::info(string err)
 {
     error(err, _lexer->loc, Info);
 }
 
-void ParsingDriver::info(string err, const yy::location &loc)
+void Driver::info(string err, const yy::location &loc)
 {
     error(err, loc, Info);
 }
 
-string ParsingDriver::fit_text(string text, size_t width, bool left)
+string Driver::fit_text(string text, size_t width, bool left)
 {
     auto l = text.length();
     if (width > l) {

@@ -8,7 +8,7 @@ namespace ast {
     int AST::dump(ASTDump &dumper) const
     {
         ostringstream os;
-        os << production << " (" << loc << ")";
+        os << production;
         int s = dumper.newNode(os.str());
         vector<int> childs;
         for (auto c : components)
@@ -165,22 +165,15 @@ namespace ast {
         production = "Cond -> Exp " + op + " Exp";
     }
 
-    Exp::Exp(string s, shared_ptr<Exp> e) : op(s)
+    Exp::Exp(char c, shared_ptr<Exp> e) : op(c)
     {
         components.push_back(e);
-        if (s == "()")
-            production = "Exp -> (Exp)";
-        else if (s == "V")
-            production = "Exp -> LVal";
-        else if (s == "Num")
-            production = "Exp -> Number";
-        else
-            production = "Exp -> UnaryOp Exp";
+        production = "Exp -> UnaryOp Exp";
     }
 
-    Exp::Exp(string s, shared_ptr<Exp> e1, shared_ptr<Exp> e2) : op(s)
+    Exp::Exp(char c, shared_ptr<Exp> e1, shared_ptr<Exp> e2) : op(c)
     {
-        production = "Exp -> Exp " + op + " Exp";
+        production = "Exp -> Exp " + string(1, op) + " Exp";
         components.push_back(e1);
         components.push_back(e2);
     }
@@ -199,32 +192,5 @@ namespace ast {
     {
         production = "Exps -> Exps [ Exp ]";
     }
-
-    int Exp::calc()
-    {
-        if (op == "()" || op == "P")
-            return dynamic_cast<Exp *>(components[0].get())->calc();
-        if (op == "N")
-            return -dynamic_cast<Exp *>(components[0].get())->calc();
-        if (op == "+")
-            return dynamic_cast<Exp *>(components[0].get())->calc() +
-                dynamic_cast<Exp *>(components[1].get())->calc();
-        if (op == "-")
-            return dynamic_cast<Exp *>(components[0].get())->calc() -
-                dynamic_cast<Exp *>(components[1].get())->calc();
-        if (op == "*")
-            return dynamic_cast<Exp *>(components[0].get())->calc() *
-                dynamic_cast<Exp *>(components[1].get())->calc();
-        if (op == "/")
-            return dynamic_cast<Exp *>(components[0].get())->calc() /
-                dynamic_cast<Exp *>(components[1].get())->calc();
-        if (op == "%")
-            return dynamic_cast<Exp *>(components[0].get())->calc() %
-                dynamic_cast<Exp *>(components[1].get())->calc();
-        if (op == "Num")
-            return dynamic_cast<Exp *>(components[0].get())->calc();
-        else
-            return 0;
-    }
-
+    
 }
