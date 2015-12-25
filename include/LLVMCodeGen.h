@@ -12,9 +12,11 @@ class LLVMCodeGen {
     std::map<std::string, llvm::AllocaInst *> _sym_table;
     
 public:
-    LLVMCodeGen(std::unique_ptr<llvm::Module> module) :
-        _module(std::move(module)), _builder(llvm::getGlobalContext()) { }
-    llvm::Value *codegen(const std::shared_ptr<ast::AST>);
+    LLVMCodeGen(llvm::Module *module) :
+        _module(module), _builder(llvm::getGlobalContext()) { }
+    void codegen(const std::shared_ptr<ast::AST>);
+    llvm::Module *getModule() { return _module.get(); }
     
-protected:
+private:
+    llvm::Value *visit_recursive(const std::shared_ptr<ast::AST>);
 };

@@ -12,8 +12,8 @@ using namespace llvm;
 constexpr int BUFSIZE = 4096 * 1024;
 char buf[BUFSIZE];
 
-Driver::Driver(string s, Module *module)
-    : _file_name(s), _module(module)
+Driver::Driver(string s, LLVMCodeGen *codegen)
+    : _file_name(s), _codegen(codegen)
 {
     FILE *fp = popen(("/usr/bin/expand " + s).c_str(),"r");
     fread(buf, sizeof(char), BUFSIZE, fp);
@@ -44,10 +44,6 @@ void Driver::parse()
 void Driver::codegen(string output_file)
 {
     /// \todo CodeGen to different target according to parameters.
-
-    /// Initialize CodeGen with the module and pass ownership to it.
-    _codegen.reset(new LLVMCodeGen(std::move(_module)));
-
     _codegen->codegen(ast_root);
 }
 

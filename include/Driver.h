@@ -37,14 +37,12 @@ class Driver {
     /// AST root.
     std::shared_ptr<ast::AST> _ast_root;
 
-    /// LLVM module for LLVM IR codegen.
-    std::unique_ptr<llvm::Module> _module;
 
     /// Code generator.
     std::unique_ptr<LLVMCodeGen> _codegen;
 
 public:
-    Driver(std::string file_name, llvm::Module *module = nullptr);
+    Driver(std::string file_name, LLVMCodeGen *codegen = nullptr);
 
     friend class yy::Parser;
     friend class yy::Lexer;
