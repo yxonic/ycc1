@@ -37,6 +37,11 @@ namespace ast {
         components.push_back(d);
     }
 
+    void Decl::setLocal()
+    {
+        isGlobal = 0;
+    }
+
     ConstDefs::ConstDefs()
     {
         production = "ConstDefs -> ConstDefs [ ConstDef ]";
@@ -44,6 +49,7 @@ namespace ast {
 
     ConstDef::ConstDef(shared_ptr<Ident> id, shared_ptr<Exp> e)
     {
+        name = id->name;
         components.push_back(id);
         components.push_back(e);
         production = "ConstDef -> ID = Exp";
@@ -52,6 +58,7 @@ namespace ast {
     ConstDef::ConstDef(shared_ptr<Ident> id, shared_ptr<Exp> e,
                        shared_ptr<Exps> el)
     {
+        name = id->name;
         is_array = true;
         components.push_back(id);
         components.push_back(e);
@@ -66,12 +73,14 @@ namespace ast {
 
     Var::Var(shared_ptr<Ident> id)
     {
+        name = id->name;
         components.push_back(id);
         production = "Var -> ID";
     }
 
     Var::Var(shared_ptr<Ident> id, shared_ptr<Exp> e, bool i)
     {
+        name = id->name;
         components.push_back(id);
         components.push_back(e);
         init = i;
@@ -84,6 +93,7 @@ namespace ast {
 
     Var::Var(shared_ptr<Ident> id, shared_ptr<Exp> e, shared_ptr<Exps> el)
     {
+        name = id->name;
         components.push_back(id);
         components.push_back(e);
         components.push_back(el);
@@ -92,6 +102,7 @@ namespace ast {
 
     FuncDef::FuncDef(shared_ptr<Ident> id, shared_ptr<Block> b)
     {
+        name = id->name;
         components.push_back(id);
         components.push_back(b);
         production = "FuncDef -> void ID ( ) Block";
@@ -178,14 +189,55 @@ namespace ast {
         components.push_back(e2);
     }
 
+    int Exp::calc() const {
+        return calc(map<std::string, int>());
+    }
+    
+    int Exp::calc(const map<std::string, int> &m) const {
+        switch (op) {
+        case 'N':
+            return -dynamic_cast<Exp&>(*components[0]).calc(m);
+        case '+':
+            return dynamic_cast<Exp&>(*components[0]).calc(m) +
+                dynamic_cast<Exp&>(*components[1]).calc(m);
+        case '-':
+            return dynamic_cast<Exp&>(*components[0]).calc(m) -
+                dynamic_cast<Exp&>(*components[1]).calc(m);
+        case '*':
+            return dynamic_cast<Exp&>(*components[0]).calc(m) *
+                dynamic_cast<Exp&>(*components[1]).calc(m);
+        case '/':
+            return dynamic_cast<Exp&>(*components[0]).calc(m) /
+                dynamic_cast<Exp&>(*components[1]).calc(m);
+        case '%':
+            return dynamic_cast<Exp&>(*components[0]).calc(m) %
+                dynamic_cast<Exp&>(*components[1]).calc(m);
+        default:
+            return 0;
+        }
+    }
+
     LVal::LVal(shared_ptr<Ident> i, shared_ptr<Exp> e)
     {
+        name = i->name;
         production = "LVal -> ident";
         if (e) {
             is_array = true;
             production += " [ Exp ]";
             components.push_back(e);
         }
+    }
+
+    int LVal::calc(const map<string, int> &m) const {
+        return m.at(name);
+    }
+
+    int Number::calc(const map<string, int> &m) const {
+        return value;
+    }
+
+    int Ident::calc(const map<string, int> &m) const {
+        return m.at(name);
     }
 
     Exps::Exps()

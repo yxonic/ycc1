@@ -37,7 +37,6 @@ class Driver {
     /// AST root.
     std::shared_ptr<ast::AST> _ast_root;
 
-
     /// Code generator.
     std::unique_ptr<LLVMCodeGen> _codegen;
 

@@ -60,10 +60,12 @@ namespace ast {
 
     class Decl : public AST {
     public:
-        enum Type { CONST, VAR };
-        Type type;
+        enum Type { CONST, VAR } type;
+        Decl() = default;
         Decl(std::shared_ptr<ConstDefs>);
         Decl(std::shared_ptr<Vars>);
+        bool isGlobal = 1;
+        void setLocal();
     };
 
     class ConstDefs : public AST {
@@ -71,8 +73,9 @@ namespace ast {
         ConstDefs();
     };
 
-    class ConstDef : public AST {
+    class ConstDef : public Decl {
     public:
+        std::string name;
         bool is_array = false;
         ConstDef(std::shared_ptr<Ident>, std::shared_ptr<Exp>);
         ConstDef(std::shared_ptr<Ident>, std::shared_ptr<Exp>,
@@ -84,8 +87,9 @@ namespace ast {
         Vars();
     };
 
-    class Var : public AST {
+    class Var : public Decl {
     public:
+        std::string name;
         bool is_array = false;
         bool init = false;
         Var(std::shared_ptr<Ident>);
@@ -96,6 +100,7 @@ namespace ast {
 
     class FuncDef : public AST {
     public:
+        std::string name;
         FuncDef(std::shared_ptr<Ident>, std::shared_ptr<Block>);
     };
 
@@ -145,6 +150,8 @@ namespace ast {
         Exp() = default;
         Exp(char, std::shared_ptr<Exp>);
         Exp(char, std::shared_ptr<Exp>, std::shared_ptr<Exp>);
+        virtual int calc() const;
+        virtual int calc(const std::map<std::string, int> &) const;
     };
 
     class Ident : public Exp {
@@ -153,6 +160,7 @@ namespace ast {
         Ident(std::string n) : name(n) {
             production = n;
         }
+        virtual int calc(const std::map<std::string, int> &) const;
     };
 
     class Number : public Exp {
@@ -161,12 +169,15 @@ namespace ast {
         Number(int n) : value(n) {
             production = std::to_string(n);
         }
+        virtual int calc(const std::map<std::string, int> &) const;
     };
 
     class LVal : public Exp {
     public:
+        std::string name;
         bool is_array = false;
         LVal(std::shared_ptr<Ident>, std::shared_ptr<Exp> = nullptr);
+        virtual int calc(const std::map<std::string, int> &) const;
     };
 
     class Exps : public AST {

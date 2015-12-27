@@ -203,6 +203,7 @@ blockitem:      %empty
         |       blockitem decl
                 {
                     $$ = $1;
+                    $2->setLocal();
                     $$->append($2);
                 }
         ;

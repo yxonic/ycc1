@@ -59,3 +59,8 @@ private:
 };
 
 extern LogManager logger;
+
+class ChainedMap {
+public:
+private:
+};

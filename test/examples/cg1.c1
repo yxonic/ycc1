@@ -1,6 +1,7 @@
-int a = 1;
-int b;
+const int a = 1, b = 2, c = a+b;
+int d;
 void main()
 {
-   b = 5 * a;
+   int e = 5 * a + c / b;
+   e = 3 + a;
 }

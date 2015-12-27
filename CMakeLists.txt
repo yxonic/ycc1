@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8.8)
 project (ycc1)
 
 # Enable C++11 as support
-set(CUSTOM_FLAGS "-Wall -std=c++11 -Wno-deprecated-register -g")
+set(CUSTOM_FLAGS "-Wall -std=c++11 -Wno-deprecated-register -Wno-unused-variable -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} ${CUSTOM_FLAGS}")
 
 # Add custom include directory
@@ -28,7 +28,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Build ycc1
 add_executable(ycc1 src/ycc1.cpp
-  src/Driver.cpp src/AST.cpp src/LLVMCodeGen.cpp src/Utils.cpp
+  src/Driver.cpp src/AST.cpp src/LLVMCodeGen.cpp src/ContextManager.cpp src/Utils.cpp
   ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
 target_link_libraries(ycc1 ${llvm_libs})
 
