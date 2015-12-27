@@ -1,7 +1,20 @@
 const int a = 1, b = 2, c = a+b;
 int d;
-void main()
+int test(int i, int j)
 {
-   int e = 5 * a + c / b;
-   e = 3 + a;
+   d = 3 + i * j;
+   return 0;
+}
+int main()
+{
+   int d = 5 * a + c / b;
+   d = 3 + a;
+   while (d < 10 && 1 == 1) {
+      d = d + 1;
+   }
+   if (d > 5 || 0 == 1) {
+      d = d - 1;
+   }
+   test(c, d);
+   return d;
 }

@@ -42,12 +42,15 @@ namespace ast {
     class Vars;
     class Var;
     class FuncDef;
+    class Params;
+    class Param;
     class Block;
     class Stmt;
+    class FuncCall;
+    class RetStmt;
     class LVal;
     class Cond;
     class Exp;
-    class Ident;
     class Number;
     class Exps;
 
@@ -77,8 +80,8 @@ namespace ast {
     public:
         std::string name;
         bool is_array = false;
-        ConstDef(std::shared_ptr<Ident>, std::shared_ptr<Exp>);
-        ConstDef(std::shared_ptr<Ident>, std::shared_ptr<Exp>,
+        ConstDef(std::string, std::shared_ptr<Exp>);
+        ConstDef(std::string, std::shared_ptr<Exp>,
                  std::shared_ptr<Exps>);
     };
 
@@ -92,16 +95,28 @@ namespace ast {
         std::string name;
         bool is_array = false;
         bool init = false;
-        Var(std::shared_ptr<Ident>);
-        Var(std::shared_ptr<Ident>, std::shared_ptr<Exp>, bool = false);
-        Var(std::shared_ptr<Ident>, std::shared_ptr<Exp>,
+        Var(std::string);
+        Var(std::string, std::shared_ptr<Exp>, bool = false);
+        Var(std::string, std::shared_ptr<Exp>,
             std::shared_ptr<Exps>);
     };
 
+    class Params : public AST {
+    public:
+        Params();
+    };
+
+    class Param : public AST {
+    public:
+        std::string name;
+        bool is_array = false;
+        Param(std::string, bool = false);
+    };
+    
     class FuncDef : public AST {
     public:
         std::string name;
-        FuncDef(std::shared_ptr<Ident>, std::shared_ptr<Block>);
+        FuncDef(std::string, std::shared_ptr<Params>, std::shared_ptr<Block>);
     };
 
     class Stmt : public AST {
@@ -111,7 +126,13 @@ namespace ast {
 
     class FuncCall : public Stmt {
     public:
-        FuncCall(std::shared_ptr<Ident>);
+        std::string name;
+        FuncCall(std::string, std::shared_ptr<Exps>);
+    };
+
+    class RetStmt : public Stmt {
+    public:
+        RetStmt(std::shared_ptr<Exp>);
     };
 
     class Block : public Stmt {
@@ -154,15 +175,6 @@ namespace ast {
         virtual int calc(const std::map<std::string, int> &) const;
     };
 
-    class Ident : public Exp {
-    public:
-        std::string name;
-        Ident(std::string n) : name(n) {
-            production = n;
-        }
-        virtual int calc(const std::map<std::string, int> &) const;
-    };
-
     class Number : public Exp {
     public:
         int value;
@@ -176,7 +188,7 @@ namespace ast {
     public:
         std::string name;
         bool is_array = false;
-        LVal(std::shared_ptr<Ident>, std::shared_ptr<Exp> = nullptr);
+        LVal(std::string, std::shared_ptr<Exp> = nullptr);
         virtual int calc(const std::map<std::string, int> &) const;
     };
 

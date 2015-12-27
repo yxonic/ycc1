@@ -27,14 +27,14 @@ namespace ast {
     {
         production = "Decl -> const int ConstDefs ;";
         type = CONST;
-        components.push_back(d);
+        append(d);
     }
 
     Decl::Decl(shared_ptr<Vars> d)
     {
         production = "Decl -> int VarDefs ;";
         type = VAR;
-        components.push_back(d);
+        append(d);
     }
 
     void Decl::setLocal()
@@ -47,22 +47,19 @@ namespace ast {
         production = "ConstDefs -> ConstDefs [ ConstDef ]";
     }
 
-    ConstDef::ConstDef(shared_ptr<Ident> id, shared_ptr<Exp> e)
+    ConstDef::ConstDef(string id, shared_ptr<Exp> e)
     {
-        name = id->name;
-        components.push_back(id);
-        components.push_back(e);
+        name = id;
+        append(e);
         production = "ConstDef -> ID = Exp";
     }
 
-    ConstDef::ConstDef(shared_ptr<Ident> id, shared_ptr<Exp> e,
-                       shared_ptr<Exps> el)
+    ConstDef::ConstDef(string id, shared_ptr<Exp> e, shared_ptr<Exps> el)
     {
-        name = id->name;
+        name = id;
         is_array = true;
-        components.push_back(id);
-        components.push_back(e);
-        components.push_back(el);
+        append(e);
+        append(el);
         production = "ConstDef -> ID [ Exp ] = Exps";
     }
 
@@ -71,18 +68,16 @@ namespace ast {
         production = "Vars -> Vars [ Var ]";
     }
 
-    Var::Var(shared_ptr<Ident> id)
+    Var::Var(string id)
     {
-        name = id->name;
-        components.push_back(id);
+        name = id;
         production = "Var -> ID";
     }
 
-    Var::Var(shared_ptr<Ident> id, shared_ptr<Exp> e, bool i)
+    Var::Var(string id, shared_ptr<Exp> e, bool i)
     {
-        name = id->name;
-        components.push_back(id);
-        components.push_back(e);
+        name = id;
+        append(e);
         init = i;
         is_array = !i;
         if (init)
@@ -91,21 +86,31 @@ namespace ast {
             production = "Var -> ID [ Exp ]";
     }
 
-    Var::Var(shared_ptr<Ident> id, shared_ptr<Exp> e, shared_ptr<Exps> el)
+    Var::Var(string id, shared_ptr<Exp> e, shared_ptr<Exps> el)
     {
-        name = id->name;
-        components.push_back(id);
-        components.push_back(e);
-        components.push_back(el);
+        name = id;
+        append(e);
+        append(el);
         production = "Var -> ID [ Exp ] = Exps";
     }
 
-    FuncDef::FuncDef(shared_ptr<Ident> id, shared_ptr<Block> b)
+    FuncDef::FuncDef(string id, shared_ptr<Params>args, shared_ptr<Block> b)
     {
-        name = id->name;
-        components.push_back(id);
-        components.push_back(b);
+        name = id;
+        append(args);
+        append(b);
         production = "FuncDef -> void ID ( ) Block";
+    }
+
+    Params::Params()
+    {
+        production = "Params -> Params [Param]";
+    }
+
+    Param::Param(string id, bool b)
+    {
+        name = id;
+        is_array = b;
     }
 
     Stmt::Stmt()
@@ -113,10 +118,17 @@ namespace ast {
         production = "Stmt -> ;";
     }
 
-    FuncCall::FuncCall(shared_ptr<Ident> id)
+    FuncCall::FuncCall(string id, shared_ptr<Exps> e)
     {
-        components.push_back(id);
+        name = id;
+        append(e);
         production = "Stmt -> void ID ( ) ;";
+    }
+
+    RetStmt::RetStmt(shared_ptr<Exp> e)
+    {
+        append(e);
+        production = "Stmt -> return exp ;";
     }
 
     Block::Block()
@@ -126,67 +138,67 @@ namespace ast {
 
     AsgnStmt::AsgnStmt(shared_ptr<LVal> v, shared_ptr<Exp> e)
     {
-        components.push_back(v);
-        components.push_back(e);
+        append(v);
+        append(e);
         production = "Stmt -> LVal = Exp";
     }
 
     IfStmt::IfStmt(shared_ptr<Cond> c, shared_ptr<Stmt> s1,
                    shared_ptr<Stmt> s2)
     {
-        components.push_back(c);
-        components.push_back(s1);
+        append(c);
+        append(s1);
         production = "Stmt -> if ( Cond ) Stmt";
         if (s2) {
-            components.push_back(s2);
+            append(s2);
             production += " else Stmt";
         }
     }
 
     WhileStmt::WhileStmt(shared_ptr<Cond> c, shared_ptr<Stmt> s)
     {
-        components.push_back(c);
-        components.push_back(s);
+        append(c);
+        append(s);
         production = "Stmt -> while ( Cond ) Stmt";
     }
 
     Cond::Cond(shared_ptr<Cond> c) : op("!")
     {
-        components.push_back(c);
+        append(c);
         production = "Cond -> ! Cond";
     }
 
     Cond::Cond(string s, shared_ptr<Cond> c1, shared_ptr<Cond> c2) : op(s)
     {
-        components.push_back(c1);
-        components.push_back(c2);
+        append(c1);
+        append(c2);
         production = "Cond -> Cond " + op + " Cond";
     }
 
     Cond::Cond(string s, shared_ptr<Exp> e) : op(s)
     {
-        components.push_back(e);
+        append(e);
         production = "Cond -> " + op + " Exp";
     }
 
     Cond::Cond(string s, shared_ptr<Exp> e1, shared_ptr<Exp> e2) : op(s)
     {
-        components.push_back(e1);
-        components.push_back(e2);
+        append(e1);
+        append(e2);
         production = "Cond -> Exp " + op + " Exp";
     }
 
     Exp::Exp(char c, shared_ptr<Exp> e) : op(c)
     {
-        components.push_back(e);
+        append(e);
         production = "Exp -> UnaryOp Exp";
     }
 
     Exp::Exp(char c, shared_ptr<Exp> e1, shared_ptr<Exp> e2) : op(c)
     {
         production = "Exp -> Exp " + string(1, op) + " Exp";
-        components.push_back(e1);
-        components.push_back(e2);
+        append(e1);
+        append(e2);
     }
 
     int Exp::calc() const {
@@ -217,14 +229,14 @@ namespace ast {
         }
     }
 
-    LVal::LVal(shared_ptr<Ident> i, shared_ptr<Exp> e)
+    LVal::LVal(string id, shared_ptr<Exp> e)
     {
-        name = i->name;
+        name = id;
         production = "LVal -> ident";
         if (e) {
             is_array = true;
             production += " [ Exp ]";
-            components.push_back(e);
+            append(e);
         }
     }
 
@@ -234,10 +246,6 @@ namespace ast {
 
     int Number::calc(const map<string, int> &m) const {
         return value;
-    }
-
-    int Ident::calc(const map<string, int> &m) const {
-        return m.at(name);
     }
 
     Exps::Exps()

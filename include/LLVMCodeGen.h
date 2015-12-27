@@ -26,10 +26,15 @@ private:
     llvm::Value *visitConstDef(const ast::ConstDef &);
     llvm::Value *visitVar(const ast::Var &);
     llvm::Value *visitFuncDef(const ast::FuncDef &);
+    llvm::Value *visitParam(const ast::Param &);
     llvm::Value *visitBlock(const ast::Block &);
     llvm::Value *visitAsgnStmt(const ast::AsgnStmt &);
     llvm::Value *visitExp(const ast::Exp &);
     llvm::Value *visitLVal(const ast::LVal &);
     llvm::Value *visitNumber(const ast::Number &);
-    llvm::Value *visitIdent(const ast::Ident &);
+    llvm::Value *visitCond(const ast::Cond &);
+    llvm::Value *visitWhileStmt(const ast::WhileStmt &);
+    llvm::Value *visitIfStmt(const ast::IfStmt &);
+    llvm::Value *visitFuncCall(const ast::FuncCall &);
+    llvm::Value *visitRetStmt(const ast::RetStmt &);
 };

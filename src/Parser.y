@@ -65,6 +65,7 @@ class Driver;
                         CONST           "const"
                         INT             "int"
                         VOID            "void"
+                        RET             "return"
      ;
 
 %token  <std::string> ID
@@ -89,6 +90,8 @@ class Driver;
 %type   <std::shared_ptr<ast::ConstDef>> constdef
 %type   <std::shared_ptr<ast::Vars>> vars
 %type   <std::shared_ptr<ast::Var>> var
+%type   <std::shared_ptr<ast::Params>> params
+%type   <std::shared_ptr<ast::Param>> param
 %type   <std::shared_ptr<ast::Exps>> exps
 %type   <std::shared_ptr<ast::CompUnit>> compunit
 %type   <std::shared_ptr<ast::FuncDef>> funcdef
@@ -113,11 +116,39 @@ compunit:       %empty
                 }
         ;
 
-funcdef:        "void" ID "(" ")" block
+funcdef:        "int" ID "(" params ")" block
+                {
+                    $$ = std::make_shared<ast::FuncDef>($2, $4, $6);
+                    logger.debug << $$->production;
+                }
+        |       "int" ID "(" ")" block
                 {
                     $$ = std::make_shared<ast::FuncDef>(
-                        std::make_shared<ast::Ident>($2), $5);
+                        $2, std::make_shared<ast::Params>(), $5);
                     logger.debug << $$->production;
+                }
+        ;
+
+params:         param
+                {
+                    $$ = std::make_shared<ast::Params>();
+                    $$->append($1);
+                    logger.debug << $$->production;
+                }
+        |       params "," param
+                {
+                    $$ = $1;
+                    $$->append($3);
+                }
+        ;
+
+param:          "int" ID
+                {
+                    $$ = std::make_shared<ast::Param>($2);
+                }
+        |       "int" ID "[" "]"
+                {
+                    $$ = std::make_shared<ast::Param>($2, true);
                 }
         ;
 
@@ -148,6 +179,11 @@ stmt:           "if" "(" cond ")" stmt "else" stmt
                 {
                     driver.error("unmatched ( in while-statement", @2);
                 }
+        |       "return" exp ";"
+                {
+                    $$ = std::make_shared<ast::RetStmt>($2);
+                    logger.debug << $$->production;
+                }
         |       block
                 {
                     $$ = $1;
@@ -168,10 +204,9 @@ otherstmt:      lval "=" exp ";"
                     $$ = std::make_shared<ast::Stmt>();
                     logger.debug << $$->production;
                 }
-        |       ID "(" ")" ";"
+        |       ID "(" exps ")" ";"
                 {
-                    $$ = std::make_shared<ast::FuncCall>(
-                        std::make_shared<ast::Ident>($1));
+                    $$ = std::make_shared<ast::FuncCall>($1, $3);
                     logger.debug << $$->production;
                 }
         |       error ";"
@@ -250,14 +285,12 @@ constdefs:      constdef
 
 constdef:       ID "=" exp
                 {
-                    $$ = std::make_shared<ast::ConstDef>(
-                        std::make_shared<ast::Ident>($1), $3);
+                    $$ = std::make_shared<ast::ConstDef>($1, $3);
                     logger.debug << $$->production;
                 }
         |       ID "[" exp "]" "=" "{" exps "}"
                 {
-                    $$ = std::make_shared<ast::ConstDef>(
-                        std::make_shared<ast::Ident>($1), $3, $7);
+                    $$ = std::make_shared<ast::ConstDef>($1, $3, $7);
                     logger.debug << $$->production;
                 }
         ;
@@ -277,27 +310,23 @@ vars:           var
 
 var:            ID
                 {
-                    $$ = std::make_shared<ast::Var>(
-                        std::make_shared<ast::Ident>($1));
+                    $$ = std::make_shared<ast::Var>($1);
                     logger.debug << $$->production;
                 }
         |       ID "[" exp "]"
                 {
-                    $$ = std::make_shared<ast::Var>(
-                        std::make_shared<ast::Ident>($1), $3);
+                    $$ = std::make_shared<ast::Var>($1, $3);
                     logger.debug << $$->production;
                 }
         |       ID "=" exp
                 {
                     // with initialization
-                    $$ = std::make_shared<ast::Var>(
-                        std::make_shared<ast::Ident>($1), $3, true);
+                    $$ = std::make_shared<ast::Var>($1, $3, true);
                     logger.debug << $$->production;
                 }
         |       ID "[" exp "]" "=" "{" exps "}"
                 {
-                    $$ = std::make_shared<ast::Var>
-                        (std::make_shared<ast::Ident>($1), $3, $7);
+                    $$ = std::make_shared<ast::Var>($1, $3, $7);
                     logger.debug << $$->production;
                 }
         ;
@@ -364,14 +393,12 @@ exp:            NUMBER
 
 lval:           ID
                 {
-                    $$ = std::make_shared<ast::LVal>(
-                        std::make_shared<ast::Ident>($1));
+                    $$ = std::make_shared<ast::LVal>($1);
                     logger.debug << $$->production;
                 }
         |       ID "[" exp "]"
                 {
-                    $$ = std::make_shared<ast::LVal>(
-                        std::make_shared<ast::Ident>($1), $3);
+                    $$ = std::make_shared<ast::LVal>($1, $3);
                     logger.debug << $$->production;
                 }
         ;

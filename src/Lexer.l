@@ -95,9 +95,9 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 "if"            return yy::Parser::make_IF(loc);
 "else"          return yy::Parser::make_ELSE(loc);
 "while"         return yy::Parser::make_WHILE(loc);
-"and"           return yy::Parser::make_AND(loc);
-"or"            return yy::Parser::make_OR(loc);
-"odd"           return yy::Parser::make_ODD(loc);
+"&&"            return yy::Parser::make_AND(loc);
+"||"            return yy::Parser::make_OR(loc);
+"return"        return yy::Parser::make_RET(loc);
 
 {number}        { char *endptr;
                   long n = strtol(YYText(), &endptr, 0);
