@@ -214,6 +214,13 @@ namespace ast {
         return calc(map<std::string, int>());
     }
     
+    CallExp::CallExp(string id, shared_ptr<Exps> e)
+    {
+        name = id;
+        append(e);
+        production = "Exp -> void ID ( [args] )";
+    }
+    
     int Exp::calc(const map<std::string, int> &m) const {
         switch (op) {
         case 'N':

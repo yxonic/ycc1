@@ -59,6 +59,8 @@ Value *LLVMCodeGen::visit(const std::shared_ptr<ast::AST> x)
         return visitLVal(dc<const LVal&>(*x));
     else if (type == typeid(Number))
         return visitNumber(dc<const Number&>(*x));
+    else if (type == typeid(CallExp))
+        return visitCallExp(dc<const CallExp&>(*x));
     else if (type == typeid(Exp))
         return visitExp(dc<const Exp&>(*x));
     else if (type == typeid(Cond))
@@ -237,8 +239,10 @@ Value *LLVMCodeGen::visitLVal(const LVal &x)
         if (_context.getType(x.name) == ContextManager::Array) {
             Value *ptr = _context.get(x.name);
             std::vector<Value *> idx;
-            idx.push_back(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
-            idx.push_back(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
+            idx.push_back(ConstantInt::get(getGlobalContext(),
+                                           APInt(32, 0)));
+            idx.push_back(ConstantInt::get(getGlobalContext(),
+                                           APInt(32, 0)));
             return _builder.CreateInBoundsGEP(ptr, idx);
         } else
             return _builder.CreateLoad(_context.get(x.name));
@@ -246,7 +250,8 @@ Value *LLVMCodeGen::visitLVal(const LVal &x)
         Value *ptr = _context.get(x.name);
         if (_context.getType(x.name) == ContextManager::Pointer) {
             ptr = _builder.CreateLoad(ptr);
-            return _builder.CreateLoad(_builder.CreateInBoundsGEP(ptr, visit(x.components[0])));
+            return _builder.CreateLoad(
+                _builder.CreateInBoundsGEP(ptr, visit(x.components[0])));
         }
         std::vector<Value *> idx;
         idx.push_back(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
@@ -266,29 +271,39 @@ Value *LLVMCodeGen::visitCond(const Cond &x)
     if (x.op == "!")
         return _builder.CreateNot(visit(x.components[0]));
     if (x.op == "and")
-        return _builder.CreateAnd(visit(x.components[0]), visit(x.components[1]));
+        return _builder.CreateAnd(visit(x.components[0]),
+                                  visit(x.components[1]));
     if (x.op == "or")
-        return _builder.CreateAnd(visit(x.components[0]), visit(x.components[1]));
+        return _builder.CreateAnd(visit(x.components[0]),
+                                  visit(x.components[1]));
     if (x.op == "==")
-        return _builder.CreateICmpEQ(visit(x.components[0]), visit(x.components[1]));
+        return _builder.CreateICmpEQ(visit(x.components[0]),
+                                     visit(x.components[1]));
     if (x.op == "!=")
-        return _builder.CreateICmpNE(visit(x.components[0]), visit(x.components[1]));
+        return _builder.CreateICmpNE(visit(x.components[0]),
+                                     visit(x.components[1]));
     if (x.op == "<")
-        return _builder.CreateICmpSLT(visit(x.components[0]), visit(x.components[1]));
+        return _builder.CreateICmpSLT(visit(x.components[0]),
+                                      visit(x.components[1]));
     if (x.op == "<=")
-        return _builder.CreateICmpSLE(visit(x.components[0]), visit(x.components[1]));
+        return _builder.CreateICmpSLE(visit(x.components[0]),
+                                      visit(x.components[1]));
     if (x.op == ">")
-        return _builder.CreateICmpSGT(visit(x.components[0]), visit(x.components[1]));
+        return _builder.CreateICmpSGT(visit(x.components[0]),
+                                      visit(x.components[1]));
     if (x.op == ">=")
-        return _builder.CreateICmpSGE(visit(x.components[0]), visit(x.components[1]));
+        return _builder.CreateICmpSGE(visit(x.components[0]),
+                                      visit(x.components[1]));
     return error("Unknown condition.");
 }
 
 Value *LLVMCodeGen::visitWhileStmt(const WhileStmt &x)
 {
     Function *func = _builder.GetInsertBlock()->getParent();
-    BasicBlock *loop = BasicBlock::Create(getGlobalContext(), "loop", func);
-    BasicBlock *after = BasicBlock::Create(getGlobalContext(), "afterloop", func);
+    BasicBlock *loop = BasicBlock::Create(
+        getGlobalContext(), "loop", func);
+    BasicBlock *after = BasicBlock::Create(
+        getGlobalContext(), "afterloop", func);
 
     Value *cond = visit(x.components[0]);
     _builder.CreateCondBr(cond, loop, after);
@@ -303,9 +318,12 @@ Value *LLVMCodeGen::visitWhileStmt(const WhileStmt &x)
 Value *LLVMCodeGen::visitIfStmt(const IfStmt &x)
 {
     Function *func = _builder.GetInsertBlock()->getParent();
-    BasicBlock *thenBB = BasicBlock::Create(getGlobalContext(), "then", func);
-    BasicBlock *elseBB = BasicBlock::Create(getGlobalContext(), "else", func);
-    BasicBlock *mergeBB = BasicBlock::Create(getGlobalContext(), "merge", func);
+    BasicBlock *thenBB = BasicBlock::Create(
+        getGlobalContext(), "then", func);
+    BasicBlock *elseBB = BasicBlock::Create(
+        getGlobalContext(), "else", func);
+    BasicBlock *mergeBB = BasicBlock::Create(
+        getGlobalContext(), "merge", func);
     Value *cond = visit(x.components[0]);
     _builder.CreateCondBr(cond, thenBB, elseBB);
     _builder.SetInsertPoint(thenBB);
@@ -326,10 +344,20 @@ Value *LLVMCodeGen::visitFuncCall(const FuncCall &x)
     std::vector<Value *> args;
     for (auto c : x.components[0]->components)
         args.push_back(visit(c));
-    return _builder.CreateCall(callee, args);
+    _builder.CreateCall(callee, args);
+    return nullptr;
 }
 
 Value *LLVMCodeGen::visitRetStmt(const RetStmt &x)
 {
     return _builder.CreateRet(visit(x.components[0]));
+}
+
+Value *LLVMCodeGen::visitCallExp(const CallExp &x)
+{
+    Function *callee = _module->getFunction(x.name);
+    std::vector<Value *> args;
+    for (auto c : x.components[0]->components)
+        args.push_back(visit(c));
+    return _builder.CreateCall(callee, args);
 }

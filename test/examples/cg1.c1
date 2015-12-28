@@ -1,6 +1,8 @@
 const int a = 1, b = 2, c = a+b;
 int arr[5]={1, 2, 3, 4, 5};
 int d;
+extern int print(int a);
+extern int read();
 int test(int i, int j, int a[])
 {
    d = 3 + i * j;
@@ -18,5 +20,7 @@ int main()
       d = d - 1;
    }
    test(c, d, arr);
-   return d-9;
+   d = read();
+   print(d * 2);
+   return 0;
 }

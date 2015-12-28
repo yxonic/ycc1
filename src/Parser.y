@@ -141,7 +141,7 @@ extfunc:        "extern" "int" ID "(" params ")" ";"
                     $$ = std::make_shared<ast::ExtFunc>($3, $5);
                     logger.debug << $$->production;
                 }
-        |       "extern" "int" ID "(" ")"
+        |       "extern" "int" ID "(" ")" ";"
                 {
                     $$ = std::make_shared<ast::ExtFunc>(
                         $3, std::make_shared<ast::Params>());
@@ -227,6 +227,12 @@ otherstmt:      lval "=" exp ";"
         |       ID "(" exps ")" ";"
                 {
                     $$ = std::make_shared<ast::FuncCall>($1, $3);
+                    logger.debug << $$->production;
+                }
+        |       ID "(" ")" ";"
+                {
+                    $$ = std::make_shared<ast::FuncCall>(
+                        $1, std::make_shared<ast::Exps>());
                     logger.debug << $$->production;
                 }
         |       error ";"
@@ -372,6 +378,17 @@ exp:            NUMBER
         |       lval
                 {
                     $$ = $1;
+                    logger.debug << $$->production;
+                }
+        |       ID "(" exps ")"
+                {
+                    $$ = std::make_shared<ast::CallExp>($1, $3);
+                    logger.debug << $$->production;
+                }
+        |       ID "(" ")"
+                {
+                    $$ = std::make_shared<ast::CallExp>(
+                        $1, std::make_shared<ast::Exps>());
                     logger.debug << $$->production;
                 }
         |       "-" exp %prec UNARY

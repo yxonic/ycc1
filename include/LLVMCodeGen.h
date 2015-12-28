@@ -42,5 +42,6 @@ private:
     llvm::Value *visitWhileStmt(const ast::WhileStmt &);
     llvm::Value *visitIfStmt(const ast::IfStmt &);
     llvm::Value *visitFuncCall(const ast::FuncCall &);
+    llvm::Value *visitCallExp(const ast::CallExp &);
     llvm::Value *visitRetStmt(const ast::RetStmt &);
 };

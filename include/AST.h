@@ -52,6 +52,7 @@ namespace ast {
     class LVal;
     class Cond;
     class Exp;
+    class CallExp;
     class Number;
     class Exps;
 
@@ -117,7 +118,8 @@ namespace ast {
     class FuncDef : public AST {
     public:
         std::string name;
-        FuncDef(std::string, std::shared_ptr<Params>, std::shared_ptr<Block>);
+        FuncDef(std::string, std::shared_ptr<Params>,
+                std::shared_ptr<Block>);
     };
 
     class ExtFunc : public AST {
@@ -197,6 +199,12 @@ namespace ast {
         bool isArray = false;
         LVal(std::string, std::shared_ptr<Exp> = nullptr);
         virtual int calc(const std::map<std::string, int> &) const;
+    };
+
+    class CallExp : public Exp {
+    public:
+        std::string name;
+        CallExp(std::string, std::shared_ptr<Exps>);
     };
 
     class Exps : public AST {

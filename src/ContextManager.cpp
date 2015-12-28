@@ -81,8 +81,8 @@ Value *ContextManager::defVariable(std::string name, int value)
 {
     if (_sym_table.size() == 1) {
         GlobalVariable* gvar =
-            new GlobalVariable(*_module, IntegerType::get(_module->getContext(), 32),
-                               /*isConstant=*/false, GlobalValue::CommonLinkage, 0, name);
+            new GlobalVariable(*_module, IntegerType::get(getGlobalContext(), 32),
+                               /*isConstant=*/false, GlobalValue::ExternalLinkage, 0, name);
         gvar->setInitializer(ConstantInt::get(getGlobalContext(), APInt(32, value)));
         _sym_table.back()[name] = {gvar, Int};
         return gvar;

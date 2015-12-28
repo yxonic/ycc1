@@ -77,7 +77,12 @@ test_ycc1: pre-build
 	@echo
 	@tput setaf 3; echo '* Testing the main compiler'; tput sgr0
 	dist/ycc1 dist/examples/cg1.c1 -S -o cg1.ll
-	lli cg1.ll
+	clang cg1.ll lib/c1lib.c -o cg1.run
+	./cg1.run
+	dist/ycc1 dist/examples/example2.c1 -S -o example2.ll
+	clang cg1.ll lib/c1lib.c -o example2.run
+	./example2.run
+	rm -f *.ll *.run
 
 # Targets for TA
 P1:
