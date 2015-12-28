@@ -1,13 +1,13 @@
 const a = 1;
 const int b = ((1 2;
 
-void expand()
+int expand()
 {
     a b;
 	c	=	d	+	;
 }
 
-                void func()
+                int func()
     {
         aa ab = a * 4;
         testaverylooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongline;
@@ -15,12 +15,12 @@ void expand()
         a b;
     }
 
-                void main()
+                int main()
     {
         func);
                 }
 
-               void func2()
+               int func2()
     {
         a = 1+2 3+4;
         while (b < 10) if (b==1) {}

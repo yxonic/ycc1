@@ -200,7 +200,9 @@ Value *LLVMCodeGen::visitAsgnStmt(const AsgnStmt &x)
         Value *ptr = _context.get(v.name);
         if (_context.getType(v.name) == ContextManager::Pointer) {
             ptr = _builder.CreateLoad(ptr);
-            return _builder.CreateInBoundsGEP(ptr, visit(v.components[0]));
+            _builder.CreateStore(
+                e, _builder.CreateInBoundsGEP(ptr, visit(v.components[0])));
+            return nullptr;
         }
         std::vector<Value *> idx;
         idx.push_back(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
@@ -256,7 +258,6 @@ Value *LLVMCodeGen::visitLVal(const LVal &x)
         std::vector<Value *> idx;
         idx.push_back(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
         idx.push_back(visit(x.components[0]));
-        ptr->dump();
         return _builder.CreateLoad(_builder.CreateInBoundsGEP(ptr, idx));
     }
 }
@@ -321,19 +322,22 @@ Value *LLVMCodeGen::visitIfStmt(const IfStmt &x)
     BasicBlock *thenBB = BasicBlock::Create(
         getGlobalContext(), "then", func);
     BasicBlock *elseBB = BasicBlock::Create(
-        getGlobalContext(), "else", func);
+        getGlobalContext(), "else");
     BasicBlock *mergeBB = BasicBlock::Create(
-        getGlobalContext(), "merge", func);
+        getGlobalContext(), "merge");
     Value *cond = visit(x.components[0]);
     _builder.CreateCondBr(cond, thenBB, elseBB);
     _builder.SetInsertPoint(thenBB);
-    visit(x.components[0]);
+    visit(x.components[1]);
     _builder.CreateBr(mergeBB);
-    if (x.components.size() > 1) {
-        _builder.SetInsertPoint(elseBB);
-        visit(x.components[1]);
-        _builder.CreateBr(mergeBB);
-    }
+    thenBB = _builder.GetInsertBlock();
+    func->getBasicBlockList().push_back(elseBB);
+    _builder.SetInsertPoint(elseBB);
+    if (x.components.size() > 2)
+        visit(x.components[2]);
+    _builder.CreateBr(mergeBB);
+    elseBB = _builder.GetInsertBlock();
+    func->getBasicBlockList().push_back(mergeBB);
     _builder.SetInsertPoint(mergeBB);
     return nullptr;
 }

@@ -76,12 +76,22 @@ test_ycc1: pre-build
 	@cd dist; cmake ../; make -s ycc1
 	@echo
 	@tput setaf 3; echo '* Testing the main compiler'; tput sgr0
+
 	dist/ycc1 dist/examples/cg1.c1 -S -o cg1.ll
 	clang cg1.ll lib/c1lib.c -o cg1.run
 	./cg1.run
+
+	dist/ycc1 dist/examples/cg2.c1 -S -o cg2.ll
+	clang cg2.ll lib/c1lib.c -o cg2.run
+	./cg2.run
+
 	dist/ycc1 dist/examples/example2.c1 -S -o example2.ll
-	clang cg1.ll lib/c1lib.c -o example2.run
+	clang example2.ll lib/c1lib.c -o example2.run
 	./example2.run
+
+	dist/ycc1 dist/examples/example3.c1 -S -o example3.ll
+	clang example3.ll lib/c1lib.c -o example3.run
+	./example3.run
 	rm -f *.ll *.run
 
 # Targets for TA

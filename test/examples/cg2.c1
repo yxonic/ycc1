@@ -1,0 +1,38 @@
+extern int print(int n);
+int swap(int a[], int i, int j)
+{
+    int t;
+    t = a[i];
+    a[i] = a[j];
+    a[j] = t;
+    return 0;
+}
+int qsort(int a[], int l, int r)
+{
+    int i, j;
+    i = l - 1;
+    j = l;
+    while (j < r - 1) {
+        if (a[j] < a[r - 1]) {
+            i = i + 1;
+            swap(a, i, j);
+        }
+        j = j + 1;
+    }
+    i = i + 1;
+    swap(a, i, r - 1);
+    if (i > l) qsort(a, l, i);
+    if (i+1 < r) qsort(a, i+1, r);
+    return 0;
+}
+int arr[10] = {1,2,8,5,10,8,4,2,9,7};
+int main()
+{
+    qsort(arr, 0, 10);
+    int i = 0;
+    while (i < 10) {
+        print(arr[i]);
+        i = i + 1;
+    }
+    return 0;
+}

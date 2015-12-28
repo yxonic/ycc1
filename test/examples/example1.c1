@@ -3,7 +3,7 @@
 
 const int m = 3, M = 6;
 int i = 0, b[m] = {1, 027, 0x3e}, _;
-void/* comment should be able to be used as delimiter */main()
+int/* comment should be able to be used as delimiter */main()
 {
     while (i<m) {
         /*comments**/ b[i] /*/*/ = b[i] /*making*/*/*a*/2;/*mess* / */

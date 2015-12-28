@@ -1,6 +1,7 @@
 /* #include <stdio.h> */
 int p, a, chk = 1, flag;
-void prime()
+extern int print(int n);
+int prime()
 {
     flag = 1;
     chk = 1;
@@ -23,13 +24,19 @@ void prime()
         } else
             flag = 0;
     }
+    return 0;
 }
-void main()
+int main()
 {
     p = 1001;
     prime();
+    print(p);
+    print(chk);
     /* printf("%d: %d\n", p, chk); */
     p = 1009;
     prime();
+    print(p);
+    print(chk);
     /* printf("%d: %d\n", p, chk); */
+    return 0;
 }
