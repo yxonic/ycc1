@@ -16,8 +16,11 @@ using namespace ast;
 void LLVMCodeGen::codegen(const Driver &d, std::string filename)
 {
     _driver = &d;
-    if (!d.ast_root.get())
+    if (!d.ast_root) {
+        logger.error << "duck";
         _driver->error("Parsing failed");
+        return;
+    }
     visit(d.ast_root);
     if (!filename.empty()) {
         FILE *backup = stderr;
@@ -36,7 +39,8 @@ Value *LLVMCodeGen::error(std::string errstr)
 Value *LLVMCodeGen::visit(const std::shared_ptr<ast::AST> x)
 {
     assert(x && "Can't codegen for nullptr");
-    const auto &type = typeid(*x);
+    const auto &node = *x;
+    const auto &type = typeid(node);
     if (type == typeid(CompUnit))
         return visitCompUnit(dc<const CompUnit&>(*x));
     else if (type == typeid(Decl))
@@ -171,6 +175,9 @@ Value *LLVMCodeGen::visitFuncDef(const FuncDef &x)
     _context.exitBlock();
     
     verifyFunction(*f);
+
+    _fpm->run(*f);
+    
     return f;
 }
 

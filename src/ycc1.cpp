@@ -2,6 +2,10 @@
 
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+#include "llvm/Analysis/Passes.h"
+#include "llvm/Transforms/Scalar.h"
+
+#include "llvm/IR/LegacyPassManager.h"
 
 #include "Driver.h"
 
@@ -9,14 +13,14 @@ using namespace std;
 using namespace llvm;
 
 char usage_str[] = "usage: ycc1 [-h] [-S] [-d] [-o file] source      \n\
-                                                                                \n\
-positional arguments:                                                           \n\
-  source             source file to compile                                     \n\
-                                                                                \n\
-optional arguments:                                                             \n\
-  -h, --help         show this help message and exit                            \n\
-  -d, --debug        print debug messages                                       \n\
-  -o file            target path for the compiled code                          \n\
+                                                                     \n\
+positional arguments:                                                \n\
+  source             source file to compile                          \n\
+                                                                     \n\
+optional arguments:                                                  \n\
+  -h, --help         show this help message and exit                 \n\
+  -d, --debug        print debug messages                            \n\
+  -o file            target path for the compiled code               \n\
   -S                 only run preprocess and compilation steps";
 
 void print_usage()
@@ -28,7 +32,26 @@ int main(int argc, char **argv)
 {
     LLVMContext &context = getGlobalContext();
     Module *module = new Module("ycc1", context);
-    LLVMCodeGen *codegen = new LLVMCodeGen(module);
+
+    FunctionPassManager *fpm = new FunctionPassManager(module);
+
+    fpm->add(new DataLayoutPass());
+    // Provide basic AliasAnalysis support for GVN.
+    fpm->add(createBasicAliasAnalysisPass());
+    // Promote allocas to registers.
+    fpm->add(createPromoteMemoryToRegisterPass());
+    // Do simple "peephole" optimizations and bit-twiddling optzns.
+    fpm->add(createInstructionCombiningPass());
+    // Reassociate expressions.
+    fpm->add(createReassociatePass());
+    // Eliminate Common SubExpressions.
+    fpm->add(createGVNPass());
+    // Simplify the control flow graph (deleting unreachable blocks, etc).
+    fpm->add(createCFGSimplificationPass());
+    
+    fpm->doInitialization();
+    
+    LLVMCodeGen *codegen = new LLVMCodeGen(module, fpm);
 
     string input_file;
     string output_file;
@@ -39,7 +62,7 @@ int main(int argc, char **argv)
         string arg(*argv);
         if (arg == "-o") {
             --argc; ++argv;
-            if (argc < 0) {
+            if (argc <= 0) {
                 print_usage();
                 return 1;
             }
@@ -59,6 +82,12 @@ int main(int argc, char **argv)
         }
         --argc; ++argv;
     }
+    
+    if (input_file.empty()) {
+        cout << "ycc1: no input file" << endl;
+        return 1;
+    }
+
     if (output_file.empty())
         output_file = "a.out";
     

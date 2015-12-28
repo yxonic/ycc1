@@ -184,11 +184,11 @@ stmt:           "if" "(" cond ")" stmt "else" stmt
                 }
         |       "if" "(" cond stmt "else" stmt
                 {
-                    driver.error("unmatched ( in if-statement", @2);
+                    error(@2, "unmatched ( in if-statement");
                 }
         |       "if" "(" cond stmt
                 {
-                    driver.error("unmatched ( in if-statement", @2);
+                    error(@2, "unmatched ( in if-statement");
                 }
         |       "while" "(" cond ")" stmt
                 {
@@ -197,7 +197,7 @@ stmt:           "if" "(" cond ")" stmt "else" stmt
                 }
         |       "while" "(" cond stmt
                 {
-                    driver.error("unmatched ( in while-statement", @2);
+                    error(@2, "unmatched ( in while-statement");
                 }
         |       "return" exp ";"
                 {
@@ -498,5 +498,6 @@ cond:           "odd" exp
 %%
 void yy::Parser::error(const location_type &loc, const std::string& m)
 {
+    driver._ast_root = nullptr;
     driver.error(m, loc);
 }

@@ -79,9 +79,10 @@ test_ycc1: pre-build
 
 	dist/ycc1 dist/examples/cg1.c1 -S -o cg1.ll
 	clang cg1.ll lib/c1lib.c -o cg1.run
-	./cg1.run
+	echo "32768" > ./cg1.run
 
 	dist/ycc1 dist/examples/cg2.c1 -S -o cg2.ll
+	cat cg2.ll
 	clang cg2.ll lib/c1lib.c -o cg2.run
 	./cg2.run
 

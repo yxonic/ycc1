@@ -14,15 +14,15 @@ progress here.
 |Component      |Status  |
 |---------------|-------:|
 |Scanning       |Finished|
-|Parsing        |Coding  |
-|Type Checking  |N/A     |
-|Code Generation|N/A     |
+|Parsing        |Finished|
+|Code Generation|Finished|
 
 ## Build and test
 
 ### Tools
 
-GCC, GNU Make, flex, bison are needed to build the whole project.
+GCC or Clang, CMake, flex, bison are needed to build the whole
+project.
 
 ### Build the compiler (currently not finished)
 
@@ -30,13 +30,13 @@ The only thing to do is:
 
     make
 
-Then you can find an executable at `bin/` named `ycc1`.
+Then you can find an executable at `dist/` named `ycc1`.
 
 ### Usage
 
 ycc1 follows GCC's convention. You can use it as follows:
 
-    usage: ycc1 [-h] [-d] [-o file] source
+    usage: ycc1 [-h] [-S] [-d] [-o file] source
 
     positional arguments:
       source             source file to compile
@@ -45,6 +45,7 @@ ycc1 follows GCC's convention. You can use it as follows:
       -h, --help         show this help message and exit
       -d, --debug        print debug messages
       -o file            target path for the compiled code
+      -S
 
 Feel free to torture this compiler with all kinds of odd input. Bug
 reports are welcome.

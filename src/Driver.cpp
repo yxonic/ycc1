@@ -49,7 +49,34 @@ void Driver::codegen(string output_file)
 
 void Driver::error(string err, ErrorLevel level) const
 {
-    error(err, _lexer->loc, level);
+    string err_color;
+    string err_type;
+    switch (level) {
+    case Error:
+        err_color = "\033[31;1m";
+        err_type = "Error";
+        break;
+    case Warning:
+        err_color = "\033[33;1m";
+        err_type = "Warning";
+        break;
+    case Info:
+        err_color = "\033[30;1m";
+        err_type = "Info";
+        break;
+    }
+    stringstream err_text;
+
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    
+    unsigned int w1 = 16, w2 = w.ws_col - w1 - 3;
+
+    err_text << fit_text(file_name, w1) << " ! "
+             << fit_text(err, w2, true);
+
+    cerr << err_text.str() << endl;
+
 }
 
 void Driver::error(string err, const yy::location &loc,
@@ -115,7 +142,7 @@ void Driver::error(string err, const yy::location &loc,
 
 void Driver::warning(string err) const
 {
-    error(err, _lexer->loc, Warning);
+    error(err, Warning);
 }
 
 void Driver::warning(string err, const yy::location &loc) const
@@ -125,7 +152,7 @@ void Driver::warning(string err, const yy::location &loc) const
 
 void Driver::info(string err) const
 {
-    error(err, _lexer->loc, Info);
+    error(err, Info);
 }
 
 void Driver::info(string err, const yy::location &loc) const

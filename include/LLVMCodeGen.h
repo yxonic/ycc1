@@ -13,13 +13,15 @@
 class LLVMCodeGen {
     const Driver *_driver;
     std::unique_ptr<llvm::Module> _module;
+    std::unique_ptr<llvm::FunctionPassManager> _fpm;
     llvm::IRBuilder<> _builder;
     ContextManager _context;
     std::map<std::string, int> _constants;
     
 public:
-    LLVMCodeGen(llvm::Module *module) :
-        _module(module), _builder(llvm::getGlobalContext()), _context(module) { }
+    LLVMCodeGen(llvm::Module *module, llvm::FunctionPassManager *fpm) :
+        _module(module), _fpm(fpm), _builder(llvm::getGlobalContext()),
+        _context(module) { }
     void codegen(const Driver &, std::string);
     std::unique_ptr<llvm::Module> &&getModule() { return std::move(_module); }
 
