@@ -66,6 +66,7 @@ class Driver;
                         INT             "int"
                         VOID            "void"
                         RET             "return"
+                        EXT             "extern"
      ;
 
 %token  <std::string> ID
@@ -95,6 +96,7 @@ class Driver;
 %type   <std::shared_ptr<ast::Exps>> exps
 %type   <std::shared_ptr<ast::CompUnit>> compunit
 %type   <std::shared_ptr<ast::FuncDef>> funcdef
+%type   <std::shared_ptr<ast::ExtFunc>> extfunc
 
 %%
 
@@ -114,6 +116,11 @@ compunit:       %empty
                     $$ = $1;
                     $$->append($2);
                 }
+        |       compunit extfunc
+                {
+                    $$ = $1;
+                    $$->append($2);
+                }
         ;
 
 funcdef:        "int" ID "(" params ")" block
@@ -125,6 +132,19 @@ funcdef:        "int" ID "(" params ")" block
                 {
                     $$ = std::make_shared<ast::FuncDef>(
                         $2, std::make_shared<ast::Params>(), $5);
+                    logger.debug << $$->production;
+                }
+        ;
+
+extfunc:        "extern" "int" ID "(" params ")" ";"
+                {
+                    $$ = std::make_shared<ast::ExtFunc>($3, $5);
+                    logger.debug << $$->production;
+                }
+        |       "extern" "int" ID "(" ")"
+                {
+                    $$ = std::make_shared<ast::ExtFunc>(
+                        $3, std::make_shared<ast::Params>());
                     logger.debug << $$->production;
                 }
         ;

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <stack>
+#include <stdio.h>
 
 #include "llvm/IR/Verifier.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -12,15 +13,23 @@ using namespace ast;
 
 #define dc dynamic_cast
 
-void LLVMCodeGen::codegen(const std::shared_ptr<ast::AST> root)
+void LLVMCodeGen::codegen(const Driver &d, std::string filename)
 {
-    /// TODO: Add assertion on root. Add error handling.
-    visit(root);
+    _driver = &d;
+    if (!d.ast_root.get())
+        _driver->error("Parsing failed");
+    visit(d.ast_root);
+    if (!filename.empty()) {
+        FILE *backup = stderr;
+        freopen(filename.c_str(), "w", stderr);
+        _module->dump();
+        stderr = backup;
+    }
 }
 
-Value *error(std::string errstr)
+Value *LLVMCodeGen::error(std::string errstr)
 {
-    logger.error << errstr;
+    _driver->error(errstr);
     return nullptr;
 }
 
@@ -34,6 +43,8 @@ Value *LLVMCodeGen::visit(const std::shared_ptr<ast::AST> x)
         return visitDecl(dc<const Decl&>(*x));
     else if (type == typeid(FuncDef))
         return visitFuncDef(dc<const FuncDef&>(*x));
+    else if (type == typeid(ExtFunc))
+        return visitExtFunc(dc<const ExtFunc&>(*x));
     else if (type == typeid(ConstDef))
         return visitConstDef(dc<const ConstDef&>(*x));
     else if (type == typeid(Param))
@@ -80,33 +91,64 @@ Value *LLVMCodeGen::visitDecl(const Decl &x)
 
 Value *LLVMCodeGen::visitConstDef(const ConstDef &x)
 {
-    if (!x.is_array) {
-        const Exp &e = dc<const Exp &>(*x.components[0]);
-        int val = e.calc(_constants);
-        _constants[x.name] = val;
-        return _context.defConstant(x.name, val);
-    } else {
-        return nullptr;
-    }
+    const Exp &e = dc<const Exp &>(*x.components[0]);
+    int val = e.calc(_constants);
+    _constants[x.name] = val;
+    return _context.defConstant(x.name, val);
 }
 
 Value *LLVMCodeGen::visitVar(const Var &x)
 {
-    if (!x.is_array) {
+    if (!x.isArray) {
         if (x.init) {
             const Exp &e = dc<const Exp &>(*x.components[0]);
             return _context.defVariable(x.name, e.calc(_constants));
         } else
             return _context.defVariable(x.name);
     } else {
-        return nullptr;
+        const Exp &e = dc<const Exp &>(*x.components[0]);
+        int size = e.calc();
+        std::vector<int> values;
+        if (x.init) {
+            for (auto c : x.components[1]->components) {
+                const Exp &e = dc<const Exp &>(*c);
+                values.push_back(e.calc(_constants));
+            }
+            return _context.defArray(x.name, size, values);
+        } else
+            return _context.defArray(x.name, size);
     }
+}
+
+Value *LLVMCodeGen::visitExtFunc(const ExtFunc &x)
+{
+    std::vector<Type*> args;
+    for (auto c : x.components[0]->components) {
+        const Param &p = dc<const Param&>(*c);
+        if (!p.isArray)
+            args.push_back(Type::getInt32Ty(getGlobalContext()));
+        else
+            args.push_back(Type::getInt32PtrTy(getGlobalContext()));
+    }
+    FunctionType *ft =
+        FunctionType::get(Type::getInt32Ty(getGlobalContext()),
+                          args, false);
+    Function *f =
+        Function::Create(ft, GlobalValue::ExternalLinkage,
+                         x.name, _module.get());
+    return f;
 }
 
 Value *LLVMCodeGen::visitFuncDef(const FuncDef &x)
 {
-    std::vector<Type*> args(x.components[0]->components.size(),
-                            Type::getInt32Ty(getGlobalContext()));
+    std::vector<Type*> args;
+    for (auto c : x.components[0]->components) {
+        const Param &p = dc<const Param&>(*c);
+        if (!p.isArray)
+            args.push_back(Type::getInt32Ty(getGlobalContext()));
+        else
+            args.push_back(Type::getInt32PtrTy(getGlobalContext()));
+    }
     FunctionType *ft =
         FunctionType::get(Type::getInt32Ty(getGlobalContext()),
                           args, false);
@@ -132,12 +174,10 @@ Value *LLVMCodeGen::visitFuncDef(const FuncDef &x)
 
 Value *LLVMCodeGen::visitParam(const Param &x)
 {
-    if (!x.is_array) {
+    if (!x.isArray)
         return _context.defVariable(x.name);
-    } else {
-        return nullptr;
-    }
-
+    else
+        return _context.defPointer(x.name);
 }
 
 Value *LLVMCodeGen::visitBlock(const Block &x)
@@ -151,8 +191,21 @@ Value *LLVMCodeGen::visitAsgnStmt(const AsgnStmt &x)
 {
     const LVal &v = dc<const LVal&>(*x.components[0]);
     Value *e = visit(x.components[1]);
-    _builder.CreateStore(e, _context.getVariable(v.name));
-    return e;
+    if (!v.isArray) {
+        _builder.CreateStore(e, _context.get(v.name));
+        return nullptr;
+    } else {
+        Value *ptr = _context.get(v.name);
+        if (_context.getType(v.name) == ContextManager::Pointer) {
+            ptr = _builder.CreateLoad(ptr);
+            return _builder.CreateInBoundsGEP(ptr, visit(v.components[0]));
+        }
+        std::vector<Value *> idx;
+        idx.push_back(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
+        idx.push_back(visit(v.components[0]));
+        _builder.CreateStore(e, _builder.CreateInBoundsGEP(ptr, idx));
+        return nullptr;
+    }
 }
 
 Value *LLVMCodeGen::visitExp(const Exp &x)
@@ -171,6 +224,8 @@ Value *LLVMCodeGen::visitExp(const Exp &x)
         return _builder.CreateMul(l, r);
     case '/':
         return _builder.CreateSDiv(l, r);
+    case '%':
+        return _builder.CreateSRem(l, r);
     default:
         return error("Unknown operator");
     }
@@ -178,7 +233,27 @@ Value *LLVMCodeGen::visitExp(const Exp &x)
 
 Value *LLVMCodeGen::visitLVal(const LVal &x)
 {
-    return _builder.CreateLoad(_context.get(x.name));
+    if (!x.isArray) {
+        if (_context.getType(x.name) == ContextManager::Array) {
+            Value *ptr = _context.get(x.name);
+            std::vector<Value *> idx;
+            idx.push_back(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
+            idx.push_back(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
+            return _builder.CreateInBoundsGEP(ptr, idx);
+        } else
+            return _builder.CreateLoad(_context.get(x.name));
+    } else {
+        Value *ptr = _context.get(x.name);
+        if (_context.getType(x.name) == ContextManager::Pointer) {
+            ptr = _builder.CreateLoad(ptr);
+            return _builder.CreateLoad(_builder.CreateInBoundsGEP(ptr, visit(x.components[0])));
+        }
+        std::vector<Value *> idx;
+        idx.push_back(ConstantInt::get(getGlobalContext(), APInt(32, 0)));
+        idx.push_back(visit(x.components[0]));
+        ptr->dump();
+        return _builder.CreateLoad(_builder.CreateInBoundsGEP(ptr, idx));
+    }
 }
 
 Value *LLVMCodeGen::visitNumber(const Number &x)

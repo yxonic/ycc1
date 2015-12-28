@@ -76,7 +76,8 @@ test_ycc1: pre-build
 	@cd dist; cmake ../; make -s ycc1
 	@echo
 	@tput setaf 3; echo '* Testing the main compiler'; tput sgr0
-	dist/ycc1 dist/examples/cg1.c1 -S -emit-llvm -o cg1.ll
+	dist/ycc1 dist/examples/cg1.c1 -S -o cg1.ll
+	lli cg1.ll
 
 # Targets for TA
 P1:

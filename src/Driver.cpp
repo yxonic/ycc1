@@ -44,16 +44,16 @@ void Driver::parse()
 void Driver::codegen(string output_file)
 {
     /// \todo CodeGen to different target according to parameters.
-    _codegen->codegen(ast_root);
+    _codegen->codegen(*this, output_file);
 }
 
-void Driver::error(string err, ErrorLevel level)
+void Driver::error(string err, ErrorLevel level) const
 {
     error(err, _lexer->loc, level);
 }
 
 void Driver::error(string err, const yy::location &loc,
-    ErrorLevel level)
+    ErrorLevel level) const
 {
     string err_color;
     string err_type;
@@ -113,27 +113,27 @@ void Driver::error(string err, const yy::location &loc,
     cerr << err_text.str() << endl;
 }
 
-void Driver::warning(string err)
+void Driver::warning(string err) const
 {
     error(err, _lexer->loc, Warning);
 }
 
-void Driver::warning(string err, const yy::location &loc)
+void Driver::warning(string err, const yy::location &loc) const
 {
     error(err, loc, Warning);
 }
 
-void Driver::info(string err)
+void Driver::info(string err) const
 {
     error(err, _lexer->loc, Info);
 }
 
-void Driver::info(string err, const yy::location &loc)
+void Driver::info(string err, const yy::location &loc) const
 {
     error(err, loc, Info);
 }
 
-string Driver::fit_text(string text, size_t width, bool left)
+string Driver::fit_text(string text, size_t width, bool left) const
 {
     auto l = text.length();
     if (width > l) {

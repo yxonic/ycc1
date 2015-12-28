@@ -98,6 +98,7 @@ number          {digit}+|0x({digit}|[a-fA-F])+
 "&&"            return yy::Parser::make_AND(loc);
 "||"            return yy::Parser::make_OR(loc);
 "return"        return yy::Parser::make_RET(loc);
+"extern"        return yy::Parser::make_EXT(loc);
 
 {number}        { char *endptr;
                   long n = strtol(YYText(), &endptr, 0);

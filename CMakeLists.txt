@@ -34,13 +34,14 @@ target_link_libraries(ycc1 ${llvm_libs})
 
 # Build test_parser
 add_executable(test_parser test/test_parser.cpp
-  src/Driver.cpp src/AST.cpp src/LLVMCodeGen.cpp src/Utils.cpp
+  src/Driver.cpp src/AST.cpp src/LLVMCodeGen.cpp src/ContextManager.cpp src/Utils.cpp
   ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
 target_link_libraries(test_parser ${llvm_libs})
 
 # Build test_dumpdot
 add_executable(test_dumpdot test/test_dumpdot.cpp
-  src/Driver.cpp src/AST.cpp src/ASTDump.cpp src/LLVMCodeGen.cpp src/Utils.cpp
+  src/Driver.cpp src/AST.cpp src/ASTDump.cpp src/LLVMCodeGen.cpp
+  src/ContextManager.cpp src/Utils.cpp
   ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUTS})
 target_link_libraries(test_dumpdot ${llvm_libs})
 

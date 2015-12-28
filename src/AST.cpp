@@ -57,7 +57,7 @@ namespace ast {
     ConstDef::ConstDef(string id, shared_ptr<Exp> e, shared_ptr<Exps> el)
     {
         name = id;
-        is_array = true;
+        isArray = true;
         append(e);
         append(el);
         production = "ConstDef -> ID [ Exp ] = Exps";
@@ -79,7 +79,7 @@ namespace ast {
         name = id;
         append(e);
         init = i;
-        is_array = !i;
+        isArray = !i;
         if (init)
             production = "Var -> ID = Exp";
         else
@@ -91,6 +91,8 @@ namespace ast {
         name = id;
         append(e);
         append(el);
+        isArray = true;
+        init = true;
         production = "Var -> ID [ Exp ] = Exps";
     }
 
@@ -99,7 +101,14 @@ namespace ast {
         name = id;
         append(args);
         append(b);
-        production = "FuncDef -> void ID ( ) Block";
+        production = "FuncDef -> int ID ( Params ) Block";
+    }
+
+    ExtFunc::ExtFunc(string id, shared_ptr<Params>args)
+    {
+        name = id;
+        append(args);
+        production = "ExtFunc -> extern int ID ( Params ) Block";
     }
 
     Params::Params()
@@ -110,7 +119,7 @@ namespace ast {
     Param::Param(string id, bool b)
     {
         name = id;
-        is_array = b;
+        isArray = b;
     }
 
     Stmt::Stmt()
@@ -234,7 +243,7 @@ namespace ast {
         name = id;
         production = "LVal -> ident";
         if (e) {
-            is_array = true;
+            isArray = true;
             production += " [ Exp ]";
             append(e);
         }

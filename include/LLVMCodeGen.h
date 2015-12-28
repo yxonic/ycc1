@@ -1,31 +1,37 @@
 // -*- mode: c++ -*-
 
+#pragma once
+
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Module.h"
 #include "llvm/PassManager.h"
 
 #include "AST.h"
 #include "ContextManager.h"
+#include "Driver.h"
 
 class LLVMCodeGen {
+    const Driver *_driver;
     std::unique_ptr<llvm::Module> _module;
     llvm::IRBuilder<> _builder;
     ContextManager _context;
     std::map<std::string, int> _constants;
     
 public:
-    LLVMCodeGen(std::unique_ptr<llvm::Module> &module) :
-        _module(std::move(module)), _builder(llvm::getGlobalContext()), _context(_module.get()) { }
-    void codegen(const std::shared_ptr<ast::AST>);
+    LLVMCodeGen(llvm::Module *module) :
+        _module(module), _builder(llvm::getGlobalContext()), _context(module) { }
+    void codegen(const Driver &, std::string);
     std::unique_ptr<llvm::Module> &&getModule() { return std::move(_module); }
 
 private:
+    llvm::Value *error(std::string);
     llvm::Value *visit(const std::shared_ptr<ast::AST>);
     llvm::Value *visitCompUnit(const ast::CompUnit &);
     llvm::Value *visitDecl(const ast::Decl &);
     llvm::Value *visitConstDef(const ast::ConstDef &);
     llvm::Value *visitVar(const ast::Var &);
     llvm::Value *visitFuncDef(const ast::FuncDef &);
+    llvm::Value *visitExtFunc(const ast::ExtFunc &);
     llvm::Value *visitParam(const ast::Param &);
     llvm::Value *visitBlock(const ast::Block &);
     llvm::Value *visitAsgnStmt(const ast::AsgnStmt &);

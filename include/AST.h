@@ -42,6 +42,7 @@ namespace ast {
     class Vars;
     class Var;
     class FuncDef;
+    class ExtFunc;
     class Params;
     class Param;
     class Block;
@@ -79,7 +80,7 @@ namespace ast {
     class ConstDef : public Decl {
     public:
         std::string name;
-        bool is_array = false;
+        bool isArray = false;
         ConstDef(std::string, std::shared_ptr<Exp>);
         ConstDef(std::string, std::shared_ptr<Exp>,
                  std::shared_ptr<Exps>);
@@ -93,7 +94,7 @@ namespace ast {
     class Var : public Decl {
     public:
         std::string name;
-        bool is_array = false;
+        bool isArray = false;
         bool init = false;
         Var(std::string);
         Var(std::string, std::shared_ptr<Exp>, bool = false);
@@ -109,7 +110,7 @@ namespace ast {
     class Param : public AST {
     public:
         std::string name;
-        bool is_array = false;
+        bool isArray = false;
         Param(std::string, bool = false);
     };
     
@@ -117,6 +118,12 @@ namespace ast {
     public:
         std::string name;
         FuncDef(std::string, std::shared_ptr<Params>, std::shared_ptr<Block>);
+    };
+
+    class ExtFunc : public AST {
+    public:
+        std::string name;
+        ExtFunc(std::string, std::shared_ptr<Params>);
     };
 
     class Stmt : public AST {
@@ -187,7 +194,7 @@ namespace ast {
     class LVal : public Exp {
     public:
         std::string name;
-        bool is_array = false;
+        bool isArray = false;
         LVal(std::string, std::shared_ptr<Exp> = nullptr);
         virtual int calc(const std::map<std::string, int> &) const;
     };
