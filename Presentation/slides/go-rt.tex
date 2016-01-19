@@ -1,0 +1,94 @@
+\documentclass{beamer}
+\usepackage[UTF8,noindent,adobefonts]{ctex}
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+\usefonttheme[onlymath]{serif}
+\usetheme{Boadilla}
+%\usetheme{Madrid}
+
+\title{Go语言的运行时系统}
+\author{阴钰 <yxonic@gmail.com>}
+\date{}
+
+\begin{document}
+
+% Customized title page.
+\begin{frame}
+  \vfill
+  \quad\textbf{\Huge Go语言的运行时系统}
+  \vfill
+  \quad 阴\quad 钰\quad \texttt{PB13011038 \scriptsize yxonic@gmail.com}
+\end{frame}
+
+\section{Go基础}
+
+\begin{frame}{\bf What is Go}
+
+  Go，又称golang，是Google开发的一种\textbf{静态强类型}、\textbf{编译
+    型}，\textbf{并发型}，并具有\textbf{垃圾回收}功能的\textbf{系统
+    级}编程语言。
+
+\end{frame}
+
+\begin{frame}{\bf Go in real world}
+
+\texttt{https://www.zhihu.com/question/21409296/answer/18184584}
+  
+\end{frame}
+
+\begin{frame}{\bf Go basics}
+  \begin{itemize}
+  \item 变量、函数声明
+  \item 类型系统
+  \item goroutines \& channels
+  \end{itemize}
+\end{frame}
+
+\section{Go Runtime}
+
+\begin{frame}{\bf Go代码概览}
+
+\begin{itemize}
+\pause
+\item 主要代码位于\texttt{src/runtime}下。
+\pause
+\item C、ASM与Go的混合代码。
+\pause
+\item 汇编语言的约定、连接器的约定。
+\pause
+\item 手段：编译到汇编代码，结合文档、注释阅读用到的函数。
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{\bf 调度器}
+
+\begin{itemize}
+\pause
+\item Go语言内置一个抢占式的调度器，用来调度goroutine。
+\pause
+\item 启动时配置好调度器，运行第一个goroutine，由它负责开启其他goroutine（包
+括main）。
+\pause
+\item 三个组件：G, M, P。
+\pause
+\item 机制
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{\bf Channel}
+
+\begin{itemize}
+\pause
+\item 创建
+\pause
+\item 收发
+\pause
+\item Select
+\end{itemize}
+
+\end{frame}
+
+\end{document}
